@@ -1,0 +1,12 @@
+create table schema_call.phone_call
+(
+    call_id   integer   not null
+        constraint phone_call_pk
+            primary key,
+    user_id   integer   not null,
+    leader_id integer   not null,
+    title     text      not null,
+    timestamp timestamp not null,
+    status    text      not null,
+    feedback  text      not null
+);

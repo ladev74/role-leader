@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+option go_package = "internal/api";
+
+//import "google/protobuf/timestamp.proto";
+
+service RoleLeader {
+  rpc CreateFeedback (CreateFeedbackRequest) returns (CreateFeedbackResponse);
+  rpc CreateCall (CreateCallRequest) returns (CreateCallResponse);
+  rpc GetCall (GetCallRequest) returns (GetCallResponse);
+  rpc UpdateCall (UpdateCallRequest) returns (UpdateCallResponse);
+  rpc DeleteCall (DeleteCallRequest) returns (DeleteCallResponse);
+  rpc ListCalls (ListCallsRequest) returns (ListCallsResponse);
+}
+
+message Call {
+  int32 call_id = 1;
+  int32 user_id = 2;
+  int32 leader_id = 3;
+  string title = 4;
+//  google.protobuf.Timestamp timestamp = 5;
+  string timestamp = 5;
+  string status = 6;
+  string feedback = 7;
+}
+
+message CreateFeedbackRequest {
+  int32 call_id = 1;
+  int32 user_id = 2;
+  string title = 3;
+}
+
+message CreateFeedbackResponse {
+  string status = 1;
+}
+
+message CreateCallRequest {
+  int32 user_id = 1;
+  int32 leader_id = 2;
+  string title = 3;
+//  google.protobuf.Timestamp timestamp = 4;
+  string timestamp = 4;
+  string status = 5;
+  string feedback = 6;
+}
+
+message CreateCallResponse {
+  int32 call_id = 1;
+}
+
+message GetCallRequest {
+  string call_id = 1;
+}
+
+message GetCallResponse {
+  Call call = 1;
+}
+
+message UpdateCallRequest {
+  int32 call_id = 1;
+  int32 user_id = 2;
+  int32 leader_id = 3;
+  string title = 4;
+//  google.protobuf.Timestamp timestamp = 5;
+  string timestamp = 5;
+  string status = 6;
+  string feedback = 7;
+}
+
+message UpdateCallResponse {
+  Call call = 1;
+}
+
+message DeleteCallRequest {
+  int32 call_id = 1;
+}
+
+message DeleteCallResponse {
+  string status = 1;
+}
+
+message ListCallsRequest {}
+
+message ListCallsResponse {
+  repeated Call calls = 1;
+}

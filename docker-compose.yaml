@@ -1,0 +1,10 @@
+name: leader
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    env_file:
+      - config/config.yaml
+    ports:
+      - '5432:5432'
