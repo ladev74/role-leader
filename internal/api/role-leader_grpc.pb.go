@@ -20,10 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	RoleLeader_CreateFeedback_FullMethodName = "/RoleLeader/CreateFeedback"
-	RoleLeader_CreateCall_FullMethodName     = "/RoleLeader/CreateCall"
 	RoleLeader_GetCall_FullMethodName        = "/RoleLeader/GetCall"
-	RoleLeader_UpdateCall_FullMethodName     = "/RoleLeader/UpdateCall"
-	RoleLeader_DeleteCall_FullMethodName     = "/RoleLeader/DeleteCall"
 	RoleLeader_ListCalls_FullMethodName      = "/RoleLeader/ListCalls"
 )
 
@@ -32,10 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoleLeaderClient interface {
 	CreateFeedback(ctx context.Context, in *CreateFeedbackRequest, opts ...grpc.CallOption) (*CreateFeedbackResponse, error)
-	CreateCall(ctx context.Context, in *CreateCallRequest, opts ...grpc.CallOption) (*CreateCallResponse, error)
 	GetCall(ctx context.Context, in *GetCallRequest, opts ...grpc.CallOption) (*GetCallResponse, error)
-	UpdateCall(ctx context.Context, in *UpdateCallRequest, opts ...grpc.CallOption) (*UpdateCallResponse, error)
-	DeleteCall(ctx context.Context, in *DeleteCallRequest, opts ...grpc.CallOption) (*DeleteCallResponse, error)
 	ListCalls(ctx context.Context, in *ListCallsRequest, opts ...grpc.CallOption) (*ListCallsResponse, error)
 }
 
@@ -57,40 +51,10 @@ func (c *roleLeaderClient) CreateFeedback(ctx context.Context, in *CreateFeedbac
 	return out, nil
 }
 
-func (c *roleLeaderClient) CreateCall(ctx context.Context, in *CreateCallRequest, opts ...grpc.CallOption) (*CreateCallResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateCallResponse)
-	err := c.cc.Invoke(ctx, RoleLeader_CreateCall_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *roleLeaderClient) GetCall(ctx context.Context, in *GetCallRequest, opts ...grpc.CallOption) (*GetCallResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCallResponse)
 	err := c.cc.Invoke(ctx, RoleLeader_GetCall_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *roleLeaderClient) UpdateCall(ctx context.Context, in *UpdateCallRequest, opts ...grpc.CallOption) (*UpdateCallResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateCallResponse)
-	err := c.cc.Invoke(ctx, RoleLeader_UpdateCall_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *roleLeaderClient) DeleteCall(ctx context.Context, in *DeleteCallRequest, opts ...grpc.CallOption) (*DeleteCallResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteCallResponse)
-	err := c.cc.Invoke(ctx, RoleLeader_DeleteCall_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,10 +76,7 @@ func (c *roleLeaderClient) ListCalls(ctx context.Context, in *ListCallsRequest, 
 // for forward compatibility.
 type RoleLeaderServer interface {
 	CreateFeedback(context.Context, *CreateFeedbackRequest) (*CreateFeedbackResponse, error)
-	CreateCall(context.Context, *CreateCallRequest) (*CreateCallResponse, error)
 	GetCall(context.Context, *GetCallRequest) (*GetCallResponse, error)
-	UpdateCall(context.Context, *UpdateCallRequest) (*UpdateCallResponse, error)
-	DeleteCall(context.Context, *DeleteCallRequest) (*DeleteCallResponse, error)
 	ListCalls(context.Context, *ListCallsRequest) (*ListCallsResponse, error)
 	mustEmbedUnimplementedRoleLeaderServer()
 }
@@ -130,17 +91,8 @@ type UnimplementedRoleLeaderServer struct{}
 func (UnimplementedRoleLeaderServer) CreateFeedback(context.Context, *CreateFeedbackRequest) (*CreateFeedbackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFeedback not implemented")
 }
-func (UnimplementedRoleLeaderServer) CreateCall(context.Context, *CreateCallRequest) (*CreateCallResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateCall not implemented")
-}
 func (UnimplementedRoleLeaderServer) GetCall(context.Context, *GetCallRequest) (*GetCallResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCall not implemented")
-}
-func (UnimplementedRoleLeaderServer) UpdateCall(context.Context, *UpdateCallRequest) (*UpdateCallResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateCall not implemented")
-}
-func (UnimplementedRoleLeaderServer) DeleteCall(context.Context, *DeleteCallRequest) (*DeleteCallResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteCall not implemented")
 }
 func (UnimplementedRoleLeaderServer) ListCalls(context.Context, *ListCallsRequest) (*ListCallsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListCalls not implemented")
@@ -184,24 +136,6 @@ func _RoleLeader_CreateFeedback_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RoleLeader_CreateCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateCallRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RoleLeaderServer).CreateCall(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RoleLeader_CreateCall_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleLeaderServer).CreateCall(ctx, req.(*CreateCallRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _RoleLeader_GetCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCallRequest)
 	if err := dec(in); err != nil {
@@ -216,42 +150,6 @@ func _RoleLeader_GetCall_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RoleLeaderServer).GetCall(ctx, req.(*GetCallRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RoleLeader_UpdateCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateCallRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RoleLeaderServer).UpdateCall(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RoleLeader_UpdateCall_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleLeaderServer).UpdateCall(ctx, req.(*UpdateCallRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RoleLeader_DeleteCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteCallRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RoleLeaderServer).DeleteCall(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RoleLeader_DeleteCall_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleLeaderServer).DeleteCall(ctx, req.(*DeleteCallRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -286,20 +184,8 @@ var RoleLeader_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RoleLeader_CreateFeedback_Handler,
 		},
 		{
-			MethodName: "CreateCall",
-			Handler:    _RoleLeader_CreateCall_Handler,
-		},
-		{
 			MethodName: "GetCall",
 			Handler:    _RoleLeader_GetCall_Handler,
-		},
-		{
-			MethodName: "UpdateCall",
-			Handler:    _RoleLeader_UpdateCall_Handler,
-		},
-		{
-			MethodName: "DeleteCall",
-			Handler:    _RoleLeader_DeleteCall_Handler,
 		},
 		{
 			MethodName: "ListCalls",
