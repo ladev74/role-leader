@@ -10,6 +10,7 @@ import (
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	"role-leader/internal/api"
 	"role-leader/internal/config"
@@ -48,6 +49,7 @@ func main() {
 
 	server := grpc.NewServer(grpc.UnaryInterceptor(logger.Interceptor(l)))
 	api.RegisterRoleLeaderServer(server, srv)
+	reflection.Register(server)
 
 	go func() {
 		if err := server.Serve(lis); err != nil {
