@@ -1,14 +1,12 @@
-create schema if not exists schema_call
-
-create table if not exists schema_call.phone_call
+create table schema_call.table_name
 (
-    call_id   text   not null
-        constraint phone_call_pk
+    call_id    text
+        constraint table_name_pk
             primary key,
-    user_id   text   not null,
-    leader_id text   not null,
-    title     text      not null,
-    start_time timestamp not null,
-    status    text      not null,
-    feedback  text      not null
+    user_id    text,
+    leader_id  text,
+    title      text,
+    status     text,
+    feedback   text,
+    start_time time
 );

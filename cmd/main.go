@@ -15,7 +15,7 @@ import (
 	"role-leader/internal/config"
 	"role-leader/internal/logger"
 	"role-leader/internal/postgres"
-	"role-leader/internal/servicee"
+	"role-leader/internal/service"
 )
 
 func main() {
@@ -44,7 +44,7 @@ func main() {
 		l.Fatal("failed to listen", zap.Error(err))
 	}
 
-	srv := servicee.New(cfg, l, conn)
+	srv := service.New(cfg, l, conn)
 
 	server := grpc.NewServer(grpc.UnaryInterceptor(logger.Interceptor(l)))
 	api.RegisterRoleLeaderServer(server, srv)
@@ -56,6 +56,7 @@ func main() {
 	}()
 
 	l.Info("grpc server started")
+	//todo(conn)
 
 	select {
 	case <-ctx.Done():
@@ -68,3 +69,29 @@ func main() {
 	}
 
 }
+
+//
+//type aboba struct {
+//	id string
+//	t  time.Time
+//}
+//
+//func todo(conn *pgx.Conn) *timestamppb.Timestamp {
+//	ctx := context.Background()
+//
+//	q := "select * from schema_call.phone_call where call_id = $1"
+//
+//	var abo aboba
+//	err := conn.QueryRow(ctx, q, "1111").Scan(
+//		&abo.id,
+//		&abo.t,
+//	)
+//	if err != nil {
+//		fmt.Println(err)
+//	}
+//	tt := timestamppb.New(abo.t)
+//	fmt.Println(abo.t)
+//	fmt.Printf("%+v\n", abo)
+//
+//	return tt
+//}
