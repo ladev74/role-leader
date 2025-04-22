@@ -117,8 +117,7 @@ func (x *Call) GetFeedback() string {
 type CreateFeedbackRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CallId        string                 `protobuf:"bytes,1,opt,name=call_id,json=callId,proto3" json:"call_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -156,13 +155,6 @@ func (*CreateFeedbackRequest) Descriptor() ([]byte, []int) {
 func (x *CreateFeedbackRequest) GetCallId() string {
 	if x != nil {
 		return x.CallId
-	}
-	return ""
-}
-
-func (x *CreateFeedbackRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
 	}
 	return ""
 }
@@ -306,86 +298,6 @@ func (x *GetCallResponse) GetCall() *Call {
 	return nil
 }
 
-type ListCallsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCallsRequest) Reset() {
-	*x = ListCallsRequest{}
-	mi := &file_api_role_leader_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCallsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCallsRequest) ProtoMessage() {}
-
-func (x *ListCallsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCallsRequest.ProtoReflect.Descriptor instead.
-func (*ListCallsRequest) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{5}
-}
-
-type ListCallsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Calls         []*Call                `protobuf:"bytes,1,rep,name=calls,proto3" json:"calls,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCallsResponse) Reset() {
-	*x = ListCallsResponse{}
-	mi := &file_api_role_leader_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCallsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCallsResponse) ProtoMessage() {}
-
-func (x *ListCallsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCallsResponse.ProtoReflect.Descriptor instead.
-func (*ListCallsResponse) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *ListCallsResponse) GetCalls() []*Call {
-	if x != nil {
-		return x.Calls
-	}
-	return nil
-}
-
 var File_api_role_leader_proto protoreflect.FileDescriptor
 
 const file_api_role_leader_proto_rawDesc = "" +
@@ -399,25 +311,20 @@ const file_api_role_leader_proto_rawDesc = "" +
 	"\n" +
 	"start_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12\x16\n" +
 	"\x06status\x18\x06 \x01(\tR\x06status\x12\x1a\n" +
-	"\bfeedback\x18\a \x01(\tR\bfeedback\"c\n" +
+	"\bfeedback\x18\a \x01(\tR\bfeedback\"J\n" +
 	"\x15CreateFeedbackRequest\x12\x17\n" +
-	"\acall_id\x18\x01 \x01(\tR\x06callId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"0\n" +
+	"\acall_id\x18\x01 \x01(\tR\x06callId\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"0\n" +
 	"\x16CreateFeedbackResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\")\n" +
 	"\x0eGetCallRequest\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\",\n" +
 	"\x0fGetCallResponse\x12\x19\n" +
-	"\x04call\x18\x01 \x01(\v2\x05.CallR\x04call\"\x12\n" +
-	"\x10ListCallsRequest\"0\n" +
-	"\x11ListCallsResponse\x12\x1b\n" +
-	"\x05calls\x18\x01 \x03(\v2\x05.CallR\x05calls2\xb1\x01\n" +
+	"\x04call\x18\x01 \x01(\v2\x05.CallR\x04call2}\n" +
 	"\n" +
 	"RoleLeader\x12A\n" +
 	"\x0eCreateFeedback\x12\x16.CreateFeedbackRequest\x1a\x17.CreateFeedbackResponse\x12,\n" +
-	"\aGetCall\x12\x0f.GetCallRequest\x1a\x10.GetCallResponse\x122\n" +
-	"\tListCalls\x12\x11.ListCallsRequest\x1a\x12.ListCallsResponseB\x0eZ\finternal/apib\x06proto3"
+	"\aGetCall\x12\x0f.GetCallRequest\x1a\x10.GetCallResponseB\x0eZ\finternal/apib\x06proto3"
 
 var (
 	file_api_role_leader_proto_rawDescOnce sync.Once
@@ -431,32 +338,27 @@ func file_api_role_leader_proto_rawDescGZIP() []byte {
 	return file_api_role_leader_proto_rawDescData
 }
 
-var file_api_role_leader_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_api_role_leader_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_api_role_leader_proto_goTypes = []any{
 	(*Call)(nil),                   // 0: Call
 	(*CreateFeedbackRequest)(nil),  // 1: CreateFeedbackRequest
 	(*CreateFeedbackResponse)(nil), // 2: CreateFeedbackResponse
 	(*GetCallRequest)(nil),         // 3: GetCallRequest
 	(*GetCallResponse)(nil),        // 4: GetCallResponse
-	(*ListCallsRequest)(nil),       // 5: ListCallsRequest
-	(*ListCallsResponse)(nil),      // 6: ListCallsResponse
-	(*timestamppb.Timestamp)(nil),  // 7: google.protobuf.Timestamp
+	(*timestamppb.Timestamp)(nil),  // 5: google.protobuf.Timestamp
 }
 var file_api_role_leader_proto_depIdxs = []int32{
-	7, // 0: Call.start_time:type_name -> google.protobuf.Timestamp
+	5, // 0: Call.start_time:type_name -> google.protobuf.Timestamp
 	0, // 1: GetCallResponse.call:type_name -> Call
-	0, // 2: ListCallsResponse.calls:type_name -> Call
-	1, // 3: RoleLeader.CreateFeedback:input_type -> CreateFeedbackRequest
-	3, // 4: RoleLeader.GetCall:input_type -> GetCallRequest
-	5, // 5: RoleLeader.ListCalls:input_type -> ListCallsRequest
-	2, // 6: RoleLeader.CreateFeedback:output_type -> CreateFeedbackResponse
-	4, // 7: RoleLeader.GetCall:output_type -> GetCallResponse
-	6, // 8: RoleLeader.ListCalls:output_type -> ListCallsResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1, // 2: RoleLeader.CreateFeedback:input_type -> CreateFeedbackRequest
+	3, // 3: RoleLeader.GetCall:input_type -> GetCallRequest
+	2, // 4: RoleLeader.CreateFeedback:output_type -> CreateFeedbackResponse
+	4, // 5: RoleLeader.GetCall:output_type -> GetCallResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_api_role_leader_proto_init() }
@@ -470,7 +372,7 @@ func file_api_role_leader_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_role_leader_proto_rawDesc), len(file_api_role_leader_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

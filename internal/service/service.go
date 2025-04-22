@@ -66,10 +66,3 @@ func (s *Service) GetCall(ctx context.Context, req *api.GetCallRequest) (*api.Ge
 
 	return &api.GetCallResponse{Call: &call}, nil
 }
-
-func (s *Service) ListCalls(ctx context.Context, req *api.ListCallsRequest) (*api.ListCallsResponse, error) {
-	calls := make([]*api.Call, 0)
-	return &api.ListCallsResponse{
-		Calls: calls,
-	}, nil
-}

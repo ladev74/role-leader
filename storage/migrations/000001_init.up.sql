@@ -2,7 +2,7 @@ create schema if not exists schema_call;
 
 create table schema_call.phone_call
 (
-    call_id    text
+    call_id    text not null
         constraint phone_call_pk
             primary key,
     user_id    text,

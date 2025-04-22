@@ -21,7 +21,6 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	RoleLeader_CreateFeedback_FullMethodName = "/RoleLeader/CreateFeedback"
 	RoleLeader_GetCall_FullMethodName        = "/RoleLeader/GetCall"
-	RoleLeader_ListCalls_FullMethodName      = "/RoleLeader/ListCalls"
 )
 
 // RoleLeaderClient is the client API for RoleLeader service.
@@ -30,7 +29,6 @@ const (
 type RoleLeaderClient interface {
 	CreateFeedback(ctx context.Context, in *CreateFeedbackRequest, opts ...grpc.CallOption) (*CreateFeedbackResponse, error)
 	GetCall(ctx context.Context, in *GetCallRequest, opts ...grpc.CallOption) (*GetCallResponse, error)
-	ListCalls(ctx context.Context, in *ListCallsRequest, opts ...grpc.CallOption) (*ListCallsResponse, error)
 }
 
 type roleLeaderClient struct {
@@ -61,23 +59,12 @@ func (c *roleLeaderClient) GetCall(ctx context.Context, in *GetCallRequest, opts
 	return out, nil
 }
 
-func (c *roleLeaderClient) ListCalls(ctx context.Context, in *ListCallsRequest, opts ...grpc.CallOption) (*ListCallsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListCallsResponse)
-	err := c.cc.Invoke(ctx, RoleLeader_ListCalls_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // RoleLeaderServer is the server API for RoleLeader service.
 // All implementations must embed UnimplementedRoleLeaderServer
 // for forward compatibility.
 type RoleLeaderServer interface {
 	CreateFeedback(context.Context, *CreateFeedbackRequest) (*CreateFeedbackResponse, error)
 	GetCall(context.Context, *GetCallRequest) (*GetCallResponse, error)
-	ListCalls(context.Context, *ListCallsRequest) (*ListCallsResponse, error)
 	mustEmbedUnimplementedRoleLeaderServer()
 }
 
@@ -93,9 +80,6 @@ func (UnimplementedRoleLeaderServer) CreateFeedback(context.Context, *CreateFeed
 }
 func (UnimplementedRoleLeaderServer) GetCall(context.Context, *GetCallRequest) (*GetCallResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCall not implemented")
-}
-func (UnimplementedRoleLeaderServer) ListCalls(context.Context, *ListCallsRequest) (*ListCallsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListCalls not implemented")
 }
 func (UnimplementedRoleLeaderServer) mustEmbedUnimplementedRoleLeaderServer() {}
 func (UnimplementedRoleLeaderServer) testEmbeddedByValue()                    {}
@@ -154,24 +138,6 @@ func _RoleLeader_GetCall_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RoleLeader_ListCalls_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListCallsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RoleLeaderServer).ListCalls(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RoleLeader_ListCalls_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleLeaderServer).ListCalls(ctx, req.(*ListCallsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // RoleLeader_ServiceDesc is the grpc.ServiceDesc for RoleLeader service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -186,10 +152,6 @@ var RoleLeader_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCall",
 			Handler:    _RoleLeader_GetCall_Handler,
-		},
-		{
-			MethodName: "ListCalls",
-			Handler:    _RoleLeader_ListCalls_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

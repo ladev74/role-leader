@@ -7,7 +7,6 @@ import "api/google/protobuf/timestamp.proto";
 service RoleLeader {
   rpc CreateFeedback (CreateFeedbackRequest) returns (CreateFeedbackResponse);
   rpc GetCall (GetCallRequest) returns (GetCallResponse);
-  rpc ListCalls (ListCallsRequest) returns (ListCallsResponse);
 }
 
 message Call {
@@ -22,8 +21,7 @@ message Call {
 
 message CreateFeedbackRequest {
   string call_id = 1;
-  string user_id = 2;
-  string message = 3;
+  string message = 2;
 }
 
 message CreateFeedbackResponse {
@@ -38,8 +36,3 @@ message GetCallResponse {
   Call call = 1;
 }
 
-message ListCallsRequest {}
-
-message ListCallsResponse {
-  repeated Call calls = 1;
-}
