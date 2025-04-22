@@ -10,7 +10,7 @@ import (
 	_ "github.com/golang-migrate/migrate/source/file"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Config struct {
@@ -19,10 +19,22 @@ type Config struct {
 	Username string `yaml:"POSTGRES_USER" env:"POSTGRES_USER" envDefault:"root"`
 	Password string `yaml:"POSTGRES_PASSWORD" env:"POSTGRES_PASSWORD" envDefault:"1234"`
 	Database string `yaml:"POSTGRES_DB" env:"POSTGRES_DB" envDefault:"postgres"`
+	MaxConn  int32  `yaml:"POSTGRES_MAX_CONN" env:"POSTGRES_MAX_CONN" env-default:"10"`
+	MinConn  int32  `yaml:"POSTGRES_MIN_CONN" env:"POSTGRES_MIN_CONN" env-default:"5"`
 }
 
-func New(ctx context.Context, config Config) (*pgx.Conn, error) {
-	conString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+func New(ctx context.Context, config Config) (*pgxpool.Pool, error) {
+	cfgForPool := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
+		config.Username,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.Database,
+		config.MaxConn,
+		config.MinConn,
+	)
+
+	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
 		config.Username,
 		config.Password,
 		config.Host,
@@ -30,12 +42,12 @@ func New(ctx context.Context, config Config) (*pgx.Conn, error) {
 		config.Database,
 	)
 
-	conn, err := pgx.Connect(ctx, conString)
+	conn, err := pgxpool.New(ctx, cfgForPool)
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to postgres: %w", err)
 	}
 
-	migration, err := migrate.New("file://./storage/migrations", conString)
+	migration, err := migrate.New("file://./storage/migrations", cfgForMigration)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create migrations: %w", err)
 	}

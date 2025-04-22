@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -17,10 +17,10 @@ type Service struct {
 	api.RoleLeaderServer
 	cfg    *config.Config
 	logger *zap.Logger
-	conn   *pgx.Conn
+	conn   *pgxpool.Pool
 }
 
-func New(cfg *config.Config, logger *zap.Logger, conn *pgx.Conn) *Service {
+func New(cfg *config.Config, logger *zap.Logger, conn *pgxpool.Pool) *Service {
 	return &Service{
 		cfg:    cfg,
 		logger: logger,
@@ -30,11 +30,12 @@ func New(cfg *config.Config, logger *zap.Logger, conn *pgx.Conn) *Service {
 
 func (s *Service) CreateFeedback(ctx context.Context, req *api.CreateFeedbackRequest) (*api.CreateFeedbackResponse, error) {
 	q := "update schema_call.phone_call set feedback = $1 where call_id = $2"
-	_, err := s.conn.Exec(ctx, q, req.Message, req.CallId)
+	_, err := s.conn.Query(ctx, q, req.Message, req.CallId)
 
 	if err != nil {
-		s.logger.Error("Failed to create feedback", zap.Error(err))
-		return nil, fmt.Errorf("failed to create feedback: %w", err)
+		s.logger.Error("CreateFeedback: failed to create feedback", zap.Error(err))
+		return &api.CreateFeedbackResponse{Status: "ERROR"},
+			fmt.Errorf("createFeedback: failed to create feedback: %w", err)
 	}
 
 	s.logger.Info("Successfully created feedback", zap.String("feedback", req.Message))

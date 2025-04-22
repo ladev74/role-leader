@@ -56,42 +56,12 @@ func main() {
 	}()
 
 	l.Info("grpc server started")
-	//todo(conn)
 
 	select {
 	case <-ctx.Done():
 		server.GracefulStop()
-		err := conn.Close(ctx)
-		if err != nil {
-			l.Info("failed to close postgres connection", zap.Error(err))
-		}
+		conn.Close()
 		l.Info("grpc server stopped")
 	}
 
 }
-
-//
-//type aboba struct {
-//	id string
-//	t  time.Time
-//}
-//
-//func todo(conn *pgx.Conn) *timestamppb.Timestamp {
-//	ctx := context.Background()
-//
-//	q := "select * from schema_call.phone_call where call_id = $1"
-//
-//	var abo aboba
-//	err := conn.QueryRow(ctx, q, "1111").Scan(
-//		&abo.id,
-//		&abo.t,
-//	)
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	tt := timestamppb.New(abo.t)
-//	fmt.Println(abo.t)
-//	fmt.Printf("%+v\n", abo)
-//
-//	return tt
-//}
