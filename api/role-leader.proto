@@ -2,12 +2,33 @@ syntax = "proto3";
 
 option go_package = "internal/api";
 
-import "api/google/protobuf/timestamp.proto";
+package api;
+
+import "api/google/timestamp.proto";
+import "api/google/annotations.proto";
+
 
 service RoleLeader {
-  rpc CreateFeedback (CreateFeedbackRequest) returns (CreateFeedbackResponse);
-  rpc GetCall (GetCallRequest) returns (GetCallResponse);
-  rpc GetLeaderCalls (GetLeaderCallsRequest) returns (GetLeaderCallsResponse);
+  rpc CreateFeedback (CreateFeedbackRequest) returns (CreateFeedbackResponse) {
+    option (google.api.http) = {
+      post: "/api/createfeedback"
+      body: "*"
+    };
+  };
+
+  rpc GetCall (GetCallRequest) returns (GetCallResponse) {
+    option (google.api.http) = {
+      get: "/api/notifications"
+      body: "*"
+    };
+  };
+
+  rpc GetLeaderCalls (GetLeaderCallsRequest) returns (GetLeaderCallsResponse) {
+    option (google.api.http) = {
+      get: "/api/notifications"
+      body: "*"
+    };
+  };
 }
 
 message Call {
