@@ -2,10 +2,8 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -34,28 +32,28 @@ func New(ctx context.Context, config Config) (*pgxpool.Pool, error) {
 		config.MinConn,
 	)
 
-	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
-		config.Username,
-		config.Password,
-		config.Host,
-		config.Port,
-		config.Database,
-	)
+	//cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
+	//	config.env.Username,
+	//	config.env.Password,
+	//	config.env.Host,
+	//	config.env.Port,
+	//	config.env.Database,
+	//)
 
 	conn, err := pgxpool.New(ctx, cfgForPool)
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to postgres: %w", err)
 	}
 
-	migration, err := migrate.New("file://./storage/migrations", cfgForMigration)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create migrations: %w", err)
-	}
-
-	err = migration.Up()
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return nil, fmt.Errorf("unable to run migrations: %w", err)
-	}
+	//migration, err := migrate.New("file://./storage/migrations", cfgForMigration)
+	//if err != nil {
+	//	return nil, fmt.Errorf("unable to create migrations: %w", err)
+	//}
+	//
+	//err = migration.Up()
+	//if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	//	return nil, fmt.Errorf("unable to run migrations: %w", err)
+	//}
 
 	return conn, nil
 }

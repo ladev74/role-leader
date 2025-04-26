@@ -22,8 +22,8 @@ type GrpcConfig struct {
 func New() (*Config, error) {
 	var cfg Config
 
-	if err := cleanenv.ReadConfig("./config/config.yaml", &cfg); err != nil {
-		return nil, fmt.Errorf("unable to read config: %w", err)
+	if err := cleanenv.ReadConfig("./config.env/config.env.yaml", &cfg); err != nil {
+		return nil, fmt.Errorf("unable to read config.env: %w", err)
 	}
 
 	return &cfg, nil

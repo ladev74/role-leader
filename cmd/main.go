@@ -39,6 +39,11 @@ func main() {
 	if err != nil {
 		l.Fatal("can't initialize database", zap.Error(err))
 	}
+	err = conn.Ping(ctx)
+	if err != nil {
+		l.Fatal("can't initialize database", zap.Error(err))
+	}
+	l.Info("connected to postgres")
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", cfg.GRPC.Port))
 	if err != nil {
