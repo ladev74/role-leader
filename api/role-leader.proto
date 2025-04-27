@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "internal/api";
 
-import "api/google/api/timestamp.proto";
+import "api/google/protobuf/timestamp.proto";
 
 package api;
 

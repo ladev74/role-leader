@@ -50,7 +50,7 @@ func main() {
 		l.Fatal("failed to listen", zap.Error(err))
 	}
 
-	srv := service.New(cfg, l, conn)
+	srv := service.New(l, conn)
 
 	server := grpc.NewServer(grpc.UnaryInterceptor(logger.Interceptor(l)))
 	api.RegisterRoleLeaderServer(server, srv)

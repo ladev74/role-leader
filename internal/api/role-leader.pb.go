@@ -390,7 +390,7 @@ var File_api_role_leader_proto protoreflect.FileDescriptor
 
 const file_api_role_leader_proto_rawDesc = "" +
 	"\n" +
-	"\x15api/role-leader.proto\x12\x03api\x1a\x1eapi/google/api/timestamp.proto\"\xda\x01\n" +
+	"\x15api/role-leader.proto\x12\x03api\x1a#api/google/protobuf/timestamp.proto\"\xda\x01\n" +
 	"\x04Call\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +

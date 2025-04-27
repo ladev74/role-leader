@@ -2,89 +2,94 @@ package tests
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log"
-	"os"
 	"testing"
 
-	"github.com/golang-migrate/migrate"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pashagolub/pgxmock/v4"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 
-	"role-leader/internal/postgres"
+	"role-leader/internal/api"
+	"role-leader/internal/service"
 )
 
-func upDB() *pgxpool.Pool {
+// добавить реализацию с sqlite
+func TestCreateFeedback(t *testing.T) {
 	ctx := context.Background()
 
-	cfg := postgres.Config{
-		Host:     "localhost",
-		Port:     "5432",
-		Username: "root",
-		Password: "1234",
-		Database: "postgres",
-		MaxConn:  10,
-		MinConn:  5,
-	}
-	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
-		cfg.Username,
-		cfg.Password,
-		cfg.Host,
-		cfg.Port,
-		cfg.Database,
-	)
-	conn, err := postgres.New(ctx, cfg)
+	mock, err := pgxmock.NewPool()
 	if err != nil {
-		log.Fatalf("unable to connect to postgres: %v", err)
+		t.Fatal("error creating mock pool:", err)
 	}
-	defer conn.Close()
-	fmt.Println(os.Getwd())
-	//migrate.NewMigration()
-	migration, err := migrate.New("file://./migrations-for-tests", cfgForMigration)
-	if err != nil {
-		log.Fatalf("unable to create migrations: %v", err)
+	defer mock.Close()
+
+	srv := service.New(zap.NewNop(), mock)
+
+	tests := []struct {
+		name       string
+		req        api.CreateFeedbackRequest
+		mockSetup  func()
+		wantStatus string
+		wantErr    bool
+	}{
+		{
+			name: "successful update",
+			req: api.CreateFeedbackRequest{
+				CallId:  "1111",
+				Message: "aboba",
+			},
+			mockSetup: func() {
+				mock.ExpectExec("update schema_call.phone_call").
+					WithArgs("aboba", "1111").
+					WillReturnResult(pgxmock.NewResult("update", 1))
+			},
+			wantStatus: service.StatusOkForGrpcResponse,
+			wantErr:    false,
+		},
+		{
+			name: "empty message",
+			req: api.CreateFeedbackRequest{
+				CallId:  "1111",
+				Message: "",
+			},
+			mockSetup:  func() {},
+			wantStatus: service.StatusErrForGrpcResponse,
+			wantErr:    true,
+		},
+		{
+			name: "database error",
+			req: api.CreateFeedbackRequest{
+				CallId:  "3333",
+				Message: "test message 3",
+			},
+			mockSetup: func() {
+				mock.ExpectExec("update schema_call.phone_call set feedback = \\$1 where call_id = \\$2").
+					WithArgs("test message 3", "3333").
+					WillReturnError(fmt.Errorf("database error"))
+			},
+			wantStatus: service.StatusErrForGrpcResponse,
+			wantErr:    true,
+		},
 	}
 
-	err = migration.Up()
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		log.Fatalf("unable to run migrations: %v", err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mockSetup != nil {
+				tt.mockSetup()
+			}
+
+			got, err := srv.CreateFeedback(ctx, &tt.req)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, tt.wantStatus, got.Status)
+			assert.NoError(t, mock.ExpectationsWereMet())
+
+			mock.Reset()
+		})
 	}
 
-	return conn
-}
-
-func TestCreateFeedback(t *testing.T) {
-	//t.Parallel()
-	//ctx := context.Background()
-
-	conn := upDB()
-	fmt.Println(conn)
-	//
-	//srv := service.New(nil, nil, conn)
-	//tests := []struct {
-	//	name string
-	//	req  *api.CreateFeedbackRequest
-	//	want pgx.Rows
-	//}{
-	//	{
-	//		name: "test1",
-	//		req: &api.CreateFeedbackRequest{
-	//			CallId:  "1111",
-	//			Message: "testMessage",
-	//		},
-	//		want: nil,
-	//	},
-	//}
-	//for _, tt := range tests {
-	//	t.Run(tt.name, func(t *testing.T) {
-	//		srv.CreateFeedback(ctx, tt.req)
-	//		rows, err := conn.Query(ctx, tt.req.CallId)
-	//		if err != nil {
-	//			t.Fatalf("unable to execute query: %v", err)
-	//		}
-	//		if reflect.DeepEqual(rows, tt.want) {
-	//			t.Errorf("CreateFeedback() = %v, want %v", rows, tt.want)
-	//		}
-	//	})
-	//}
 }
