@@ -39,7 +39,7 @@ func TestCreateFeedback(t *testing.T) {
 				Message: "aboba",
 			},
 			mockSetup: func() {
-				mock.ExpectExec("update schema_call.phone_call").
+				mock.ExpectExec("update schema_call.phone_call set feedback = \\$1 where call_id = \\$2").
 					WithArgs("aboba", "1111").
 					WillReturnResult(pgxmock.NewResult("update", 1))
 			},
@@ -63,7 +63,7 @@ func TestCreateFeedback(t *testing.T) {
 				Message: "test message 3",
 			},
 			mockSetup: func() {
-				mock.ExpectExec("update schema_call.phone_call set feedback = \\$1 where call_id = \\$2").
+				mock.ExpectExec("update schema_call.phone_call set feedback = \\$1 where call_id = \\$2$").
 					WithArgs("test message 3", "3333").
 					WillReturnError(fmt.Errorf("database error"))
 			},
