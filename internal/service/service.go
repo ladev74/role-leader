@@ -28,9 +28,10 @@ func New(logger *zap.Logger, conn *pgxpool.Pool) *Service {
 }
 
 var (
-	ErrEmptyMessage   = status.Errorf(codes.InvalidArgument, "Message cannot be empty")
-	ErrCallIdNotFound = status.Errorf(codes.NotFound, "Call id not found")
-	ErrInternalError  = status.Errorf(codes.Internal, "Internal server error")
+	ErrEmptyMessage     = status.Errorf(codes.InvalidArgument, "Message cannot be empty")
+	ErrCallIdNotFound   = status.Errorf(codes.NotFound, "Call id not found")
+	ErrLeaderIdNotFound = status.Errorf(codes.NotFound, "Leader id not found")
+	ErrInternalError    = status.Errorf(codes.Internal, "Internal server error")
 )
 
 func (s *Service) CreateFeedback(ctx context.Context, req *api.CreateFeedbackRequest) (*api.CreateFeedbackResponse, error) {
@@ -43,15 +44,16 @@ func (s *Service) CreateFeedback(ctx context.Context, req *api.CreateFeedbackReq
 	q := "update schema_call.phone_call set feedback = $1 where call_id = $2"
 	tag, err := s.conn.Exec(ctx, q, req.Message, req.CallId)
 
-	if tag.RowsAffected() == 0 {
-		s.logger.Error("CreateFeedback: call id not found: ", zap.String("call_id = ", req.CallId))
-		return nil,
-			ErrCallIdNotFound
-	}
 	if err != nil {
 		s.logger.Error("CreateFeedback: failed to create feedback", zap.Error(err))
 		return nil,
 			ErrInternalError
+	}
+
+	if tag.RowsAffected() == 0 {
+		s.logger.Error("CreateFeedback: call id not found: ", zap.String("call_id = ", req.CallId))
+		return nil,
+			ErrCallIdNotFound
 	}
 
 	s.logger.Info("Successfully created feedback", zap.String("feedback", req.Message))
@@ -89,11 +91,18 @@ func (s *Service) GetLeaderCalls(ctx context.Context, req *api.GetLeaderCallsReq
 	q := "select * from schema_call.phone_call where leader_id = $1"
 
 	row, err := s.conn.Query(ctx, q, req.LeaderId)
+
 	if err != nil {
-		s.logger.Error("Failed to get calls", zap.Error(err))
-		return nil, fmt.Errorf("failed to get calls: %w", err)
+		s.logger.Error("GetLeaderCalls: failed to get calls", zap.Error(err), zap.String("leader id = ", req.LeaderId))
+		return nil, ErrInternalError
 	}
+
 	defer row.Close()
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		s.logger.Error("GetLeaderCalls: leader id not found: ", zap.String("leader id = ", req.LeaderId))
+		return nil, ErrLeaderIdNotFound
+	}
 
 	var calls []*api.Call
 	for row.Next() {
@@ -103,9 +112,9 @@ func (s *Service) GetLeaderCalls(ctx context.Context, req *api.GetLeaderCallsReq
 			&call.UserId,
 			&call.LeaderId,
 			&call.Title,
-			&call.StartTime,
 			&call.Status,
 			&call.Feedback,
+			&call.StartTime,
 		)
 		if err != nil {
 			s.logger.Error("Failed to get calls", zap.Error(err))
@@ -118,8 +127,10 @@ func (s *Service) GetLeaderCalls(ctx context.Context, req *api.GetLeaderCallsReq
 		s.logger.Error("Error after iterating calls", zap.Error(err))
 		return nil, fmt.Errorf("error after iterating calls: %w", err)
 	}
-	for _, call := range calls {
-		fmt.Println(call)
+
+	if len(calls) == 0 {
+		s.logger.Error("GetLeaderCalls: leader id no found", zap.String("leader id = ", req.LeaderId))
+		return nil, ErrLeaderIdNotFound
 	}
 
 	return &api.GetLeaderCallsResponse{Calls: calls}, nil

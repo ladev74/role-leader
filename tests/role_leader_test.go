@@ -94,7 +94,7 @@ func TestCreateFeedback(t *testing.T) {
 				&got.StartTime,
 			)
 
-			if !reflect.DeepEqual(err, tt.wantErr) {
+			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("CreateFeedback() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if !reflect.DeepEqual(&got, tt.want) {
@@ -153,15 +153,103 @@ func TestGetCall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := srv.GetCall(ctx, tt.req)
-			if !reflect.DeepEqual(err, tt.wantErr) {
-				t.Errorf("CreateFeedback() error = %v, wantErr %v", err, tt.wantErr)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("GetCall() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("CreateFeedback() got = %v, want %v", got, tt.want)
+				t.Errorf("GetCall() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
 
+}
+
+func TestGetLeaderCalls(t *testing.T) {
+	ctx := context.Background()
+	conn, err := upDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	srv := service.New(zap.NewNop(), conn)
+
+	tests := []struct {
+		name    string
+		req     *api.GetLeaderCallsRequest
+		want    *api.GetLeaderCallsResponse
+		wantErr error
+	}{
+		{
+			name: "successful get leader calls",
+			req: &api.GetLeaderCallsRequest{
+				LeaderId: "leader2",
+			},
+			want: &api.GetLeaderCallsResponse{
+				Calls: []*api.Call{
+					{
+						CallId:    "2222",
+						UserId:    "user2",
+						LeaderId:  "leader2",
+						Title:     "title2",
+						Status:    "status2",
+						Feedback:  "feedback2",
+						StartTime: "02:02:02",
+					},
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "two calls",
+			req: &api.GetLeaderCallsRequest{
+				LeaderId: "leader3",
+			},
+			want: &api.GetLeaderCallsResponse{
+				Calls: []*api.Call{
+					{
+						CallId:    "3333",
+						UserId:    "user3",
+						LeaderId:  "leader3",
+						Title:     "title3",
+						Status:    "status3",
+						Feedback:  "feedback3",
+						StartTime: "03:03:03",
+					},
+					{
+						CallId:    "4444",
+						UserId:    "user4",
+						LeaderId:  "leader3",
+						Title:     "title4",
+						Status:    "status4",
+						Feedback:  "feedback4",
+						StartTime: "04:04:04",
+					},
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not existing call id",
+			req: &api.GetLeaderCallsRequest{
+				LeaderId: "leader0",
+			},
+			want:    nil,
+			wantErr: service.ErrLeaderIdNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := srv.GetLeaderCalls(ctx, tt.req)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("GetLeaderCalls(), test name = %s: error = %v, wantErr %v", tt.name, err, tt.wantErr)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetLeaderCalls() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
 func upDB() (*pgxpool.Pool, error) {
