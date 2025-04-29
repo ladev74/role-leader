@@ -14,6 +14,19 @@ import (
 	"role-leader/internal/api"
 )
 
+var (
+	ErrEmptyMessage     = status.Errorf(codes.InvalidArgument, "Message cannot be empty")
+	ErrCallIdNotFound   = status.Errorf(codes.NotFound, "Call id not found")
+	ErrLeaderIdNotFound = status.Errorf(codes.NotFound, "Leader id not found")
+	ErrInternalError    = status.Errorf(codes.Internal, "Internal server error")
+)
+
+const (
+	QueryForCreateFeedback = "update schema_call.phone_call set feedback = $1 where call_id = $2"
+	QueryForGetCall        = "select * from schema_call.phone_call where call_id = $1"
+	QueryForGetLeaderCalls = "select * from schema_call.phone_call where leader_id = $1"
+)
+
 type Service struct {
 	api.RoleLeaderServer
 	logger *zap.Logger
@@ -27,25 +40,17 @@ func New(logger *zap.Logger, conn *pgxpool.Pool) *Service {
 	}
 }
 
-var (
-	ErrEmptyMessage     = status.Errorf(codes.InvalidArgument, "Message cannot be empty")
-	ErrCallIdNotFound   = status.Errorf(codes.NotFound, "Call id not found")
-	ErrLeaderIdNotFound = status.Errorf(codes.NotFound, "Leader id not found")
-	ErrInternalError    = status.Errorf(codes.Internal, "Internal server error")
-)
-
 func (s *Service) CreateFeedback(ctx context.Context, req *api.CreateFeedbackRequest) (*api.CreateFeedbackResponse, error) {
 	if req.Message == "" {
-		s.logger.Error("CreateFeedback: feedback message is empty")
+		s.logger.Error("CreateFeedback: feedback message is empty", zap.String("call_id = ", req.CallId))
 		return nil,
 			ErrEmptyMessage
 	}
 
-	q := "update schema_call.phone_call set feedback = $1 where call_id = $2"
-	tag, err := s.conn.Exec(ctx, q, req.Message, req.CallId)
+	tag, err := s.conn.Exec(ctx, QueryForCreateFeedback, req.Message, req.CallId)
 
 	if err != nil {
-		s.logger.Error("CreateFeedback: failed to create feedback", zap.Error(err))
+		s.logger.Error("CreateFeedback: failed to create feedback", zap.Error(err), zap.String("call_id = ", req.CallId))
 		return nil,
 			ErrInternalError
 	}
@@ -56,16 +61,15 @@ func (s *Service) CreateFeedback(ctx context.Context, req *api.CreateFeedbackReq
 			ErrCallIdNotFound
 	}
 
-	s.logger.Info("Successfully created feedback", zap.String("feedback", req.Message))
+	s.logger.Info("Successfully created feedback", zap.String("call_id = ", req.CallId), zap.String("feedback", req.Message))
 
 	return &api.CreateFeedbackResponse{}, nil
 }
 
 func (s *Service) GetCall(ctx context.Context, req *api.GetCallRequest) (*api.GetCallResponse, error) {
-	q := "select * from schema_call.phone_call where call_id = $1"
 	var call api.Call
 
-	err := s.conn.QueryRow(ctx, q, req.CallId).Scan(
+	err := s.conn.QueryRow(ctx, QueryForGetCall, req.CallId).Scan(
 		&call.CallId,
 		&call.UserId,
 		&call.LeaderId,
@@ -88,9 +92,7 @@ func (s *Service) GetCall(ctx context.Context, req *api.GetCallRequest) (*api.Ge
 }
 
 func (s *Service) GetLeaderCalls(ctx context.Context, req *api.GetLeaderCallsRequest) (*api.GetLeaderCallsResponse, error) {
-	q := "select * from schema_call.phone_call where leader_id = $1"
-
-	row, err := s.conn.Query(ctx, q, req.LeaderId)
+	row, err := s.conn.Query(ctx, QueryForGetLeaderCalls, req.LeaderId)
 
 	if err != nil {
 		s.logger.Error("GetLeaderCalls: failed to get calls", zap.Error(err), zap.String("leader id = ", req.LeaderId))

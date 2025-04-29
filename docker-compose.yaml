@@ -8,3 +8,13 @@ services:
       - config/config.yaml
     ports:
       - '5432:5432'
+  role_leader:
+     container_name: roleLeader
+     build:
+       context: .
+       dockerfile: ./Dockerfile
+     ports:
+       - "50051:50051"
+     depends_on:
+       - postgres
+

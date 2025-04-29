@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"os/signal"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -20,8 +22,8 @@ import (
 func main() {
 	ctx := context.Background()
 
-	//ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
-	//defer cancel()
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	defer cancel()
 
 	cfg, err := config.New()
 	if err != nil {
@@ -30,7 +32,7 @@ func main() {
 
 	l, err := logger.New(cfg.Logger)
 	if err != nil {
-		log.Fatalf("can't initialize l: %v", err)
+		log.Fatalf("can't initialize logger: %v", err)
 	}
 
 	conn, err := postgres.New(ctx, cfg.Postgres)
