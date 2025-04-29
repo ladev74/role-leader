@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
-	"os/signal"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -22,8 +20,8 @@ import (
 func main() {
 	ctx := context.Background()
 
-	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
-	defer cancel()
+	//ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	//defer cancel()
 
 	cfg, err := config.New()
 	if err != nil {

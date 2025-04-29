@@ -10,7 +10,7 @@ create table if not exists schema_call.phone_call
     title      text,
     status     text,
     feedback   text,
-    start_time time
+    start_time text
 );
 
 

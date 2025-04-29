@@ -3,70 +3,76 @@ package service
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"role-leader/internal/api"
 )
 
+//	type DB interface {
+//		Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
+//	}
 type Service struct {
 	api.RoleLeaderServer
 	logger *zap.Logger
-	db     DB
+	conn   *pgxpool.Pool
 }
 
-func New(logger *zap.Logger, db DB) *Service {
+func New(logger *zap.Logger, conn *pgxpool.Pool) *Service {
 	return &Service{
 		logger: logger,
-		db:     db,
+		conn:   conn,
 	}
 }
 
-const (
-	StatusOkForGrpcResponse  = "OK"
-	StatusErrForGrpcResponse = "ERROR"
+var (
+	ErrEmptyMessage   = status.Errorf(codes.InvalidArgument, "Message cannot be empty")
+	ErrCallIdNotFound = status.Errorf(codes.NotFound, "Call id not found")
+	ErrInternalError  = status.Errorf(codes.Internal, "Internal server error")
 )
 
-type DB interface {
-	Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
-	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
-	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
-}
-
 func (s *Service) CreateFeedback(ctx context.Context, req *api.CreateFeedbackRequest) (*api.CreateFeedbackResponse, error) {
-	q := "update schema_call.phone_call set feedback = $1 where call_id = $2"
-	_, err := s.db.Exec(ctx, q, req.Message, req.CallId)
+	if req.Message == "" {
+		s.logger.Error("CreateFeedback: feedback message is empty")
+		return nil,
+			ErrEmptyMessage
+	}
 
+	q := "update schema_call.phone_call set feedback = $1 where call_id = $2"
+	tag, err := s.conn.Exec(ctx, q, req.Message, req.CallId)
+
+	if tag.RowsAffected() == 0 {
+		s.logger.Error("CreateFeedback: call id not found: ", zap.String("call_id = ", req.CallId))
+		return nil,
+			ErrCallIdNotFound
+	}
 	if err != nil {
 		s.logger.Error("CreateFeedback: failed to create feedback", zap.Error(err))
-		return &api.CreateFeedbackResponse{Status: StatusErrForGrpcResponse},
-			fmt.Errorf("createFeedback: failed to create feedback: %w", err)
+		return nil,
+			ErrInternalError
 	}
 
 	s.logger.Info("Successfully created feedback", zap.String("feedback", req.Message))
 
-	return &api.CreateFeedbackResponse{Status: StatusOkForGrpcResponse}, nil
+	return &api.CreateFeedbackResponse{}, nil
 }
 
 func (s *Service) GetCall(ctx context.Context, req *api.GetCallRequest) (*api.GetCallResponse, error) {
 	q := "select * from schema_call.phone_call where call_id = $1"
-	t := time.Time{}
 	var call api.Call
 
-	err := s.db.QueryRow(ctx, q, req.CallId).Scan(
+	err := s.conn.QueryRow(ctx, q, req.CallId).Scan(
 		&call.CallId,
 		&call.UserId,
 		&call.LeaderId,
 		&call.Title,
+		&call.StartTime,
 		&call.Status,
 		&call.Feedback,
-		&t,
 	)
-	call.StartTime = timestamppb.New(t)
 
 	if err != nil {
 		s.logger.Error("Failed to get call", zap.Error(err))
@@ -79,7 +85,7 @@ func (s *Service) GetCall(ctx context.Context, req *api.GetCallRequest) (*api.Ge
 func (s *Service) GetLeaderCalls(ctx context.Context, req *api.GetLeaderCallsRequest) (*api.GetLeaderCallsResponse, error) {
 	q := "select * from schema_call.phone_call where leader_id = $1"
 
-	row, err := s.db.Query(ctx, q, req.LeaderId)
+	row, err := s.conn.Query(ctx, q, req.LeaderId)
 	if err != nil {
 		s.logger.Error("Failed to get calls", zap.Error(err))
 		return nil, fmt.Errorf("failed to get calls: %w", err)
@@ -89,21 +95,19 @@ func (s *Service) GetLeaderCalls(ctx context.Context, req *api.GetLeaderCallsReq
 	var calls []*api.Call
 	for row.Next() {
 		var call api.Call
-		var t time.Time
 		err := row.Scan(
 			&call.CallId,
 			&call.UserId,
 			&call.LeaderId,
 			&call.Title,
+			&call.StartTime,
 			&call.Status,
 			&call.Feedback,
-			&t,
 		)
 		if err != nil {
 			s.logger.Error("Failed to get calls", zap.Error(err))
 			return nil, fmt.Errorf("failed to get calls: %w", err)
 		}
-		call.StartTime = timestamppb.New(t)
 		calls = append(calls, &call)
 	}
 

@@ -2,11 +2,7 @@ syntax = "proto3";
 
 option go_package = "internal/api";
 
-import "api/google/protobuf/timestamp.proto";
-
 package api;
-
-
 
 service RoleLeader {
   rpc CreateFeedback (CreateFeedbackRequest) returns (CreateFeedbackResponse);
@@ -19,9 +15,9 @@ message Call {
   string user_id = 2;
   string leader_id = 3;
   string title = 4;
-  google.protobuf.Timestamp start_time = 5;
   string status = 6;
   string feedback = 7;
+  string start_time = 5;
 }
 
 message CreateFeedbackRequest {
@@ -30,7 +26,6 @@ message CreateFeedbackRequest {
 }
 
 message CreateFeedbackResponse {
-  string status = 1;
 }
 
 message GetCallRequest {

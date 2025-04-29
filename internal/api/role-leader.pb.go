@@ -9,7 +9,6 @@ package api
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -28,9 +27,9 @@ type Call struct {
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	LeaderId      string                 `protobuf:"bytes,3,opt,name=leader_id,json=leaderId,proto3" json:"leader_id,omitempty"`
 	Title         string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
 	Feedback      string                 `protobuf:"bytes,7,opt,name=feedback,proto3" json:"feedback,omitempty"`
+	StartTime     string                 `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -93,13 +92,6 @@ func (x *Call) GetTitle() string {
 	return ""
 }
 
-func (x *Call) GetStartTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.StartTime
-	}
-	return nil
-}
-
 func (x *Call) GetStatus() string {
 	if x != nil {
 		return x.Status
@@ -110,6 +102,13 @@ func (x *Call) GetStatus() string {
 func (x *Call) GetFeedback() string {
 	if x != nil {
 		return x.Feedback
+	}
+	return ""
+}
+
+func (x *Call) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
 	}
 	return ""
 }
@@ -168,7 +167,6 @@ func (x *CreateFeedbackRequest) GetMessage() string {
 
 type CreateFeedbackResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -201,13 +199,6 @@ func (x *CreateFeedbackResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateFeedbackResponse.ProtoReflect.Descriptor instead.
 func (*CreateFeedbackResponse) Descriptor() ([]byte, []int) {
 	return file_api_role_leader_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *CreateFeedbackResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
 }
 
 type GetCallRequest struct {
@@ -390,21 +381,20 @@ var File_api_role_leader_proto protoreflect.FileDescriptor
 
 const file_api_role_leader_proto_rawDesc = "" +
 	"\n" +
-	"\x15api/role-leader.proto\x12\x03api\x1a#api/google/protobuf/timestamp.proto\"\xda\x01\n" +
+	"\x15api/role-leader.proto\x12\x03api\"\xbe\x01\n" +
 	"\x04Call\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tleader_id\x18\x03 \x01(\tR\bleaderId\x12\x14\n" +
-	"\x05title\x18\x04 \x01(\tR\x05title\x129\n" +
-	"\n" +
-	"start_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12\x16\n" +
+	"\x05title\x18\x04 \x01(\tR\x05title\x12\x16\n" +
 	"\x06status\x18\x06 \x01(\tR\x06status\x12\x1a\n" +
-	"\bfeedback\x18\a \x01(\tR\bfeedback\"J\n" +
+	"\bfeedback\x18\a \x01(\tR\bfeedback\x12\x1d\n" +
+	"\n" +
+	"start_time\x18\x05 \x01(\tR\tstartTime\"J\n" +
 	"\x15CreateFeedbackRequest\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"0\n" +
-	"\x16CreateFeedbackResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\")\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x18\n" +
+	"\x16CreateFeedbackResponse\")\n" +
 	"\x0eGetCallRequest\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\"0\n" +
 	"\x0fGetCallResponse\x12\x1d\n" +
@@ -440,23 +430,21 @@ var file_api_role_leader_proto_goTypes = []any{
 	(*GetCallResponse)(nil),        // 4: api.GetCallResponse
 	(*GetLeaderCallsRequest)(nil),  // 5: api.GetLeaderCallsRequest
 	(*GetLeaderCallsResponse)(nil), // 6: api.GetLeaderCallsResponse
-	(*timestamppb.Timestamp)(nil),  // 7: google.protobuf.Timestamp
 }
 var file_api_role_leader_proto_depIdxs = []int32{
-	7, // 0: api.Call.start_time:type_name -> google.protobuf.Timestamp
-	0, // 1: api.GetCallResponse.call:type_name -> api.Call
-	0, // 2: api.GetLeaderCallsResponse.calls:type_name -> api.Call
-	1, // 3: api.RoleLeader.CreateFeedback:input_type -> api.CreateFeedbackRequest
-	3, // 4: api.RoleLeader.GetCall:input_type -> api.GetCallRequest
-	5, // 5: api.RoleLeader.GetLeaderCalls:input_type -> api.GetLeaderCallsRequest
-	2, // 6: api.RoleLeader.CreateFeedback:output_type -> api.CreateFeedbackResponse
-	4, // 7: api.RoleLeader.GetCall:output_type -> api.GetCallResponse
-	6, // 8: api.RoleLeader.GetLeaderCalls:output_type -> api.GetLeaderCallsResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0, // 0: api.GetCallResponse.call:type_name -> api.Call
+	0, // 1: api.GetLeaderCallsResponse.calls:type_name -> api.Call
+	1, // 2: api.RoleLeader.CreateFeedback:input_type -> api.CreateFeedbackRequest
+	3, // 3: api.RoleLeader.GetCall:input_type -> api.GetCallRequest
+	5, // 4: api.RoleLeader.GetLeaderCalls:input_type -> api.GetLeaderCallsRequest
+	2, // 5: api.RoleLeader.CreateFeedback:output_type -> api.CreateFeedbackResponse
+	4, // 6: api.RoleLeader.GetCall:output_type -> api.GetCallResponse
+	6, // 7: api.RoleLeader.GetLeaderCalls:output_type -> api.GetLeaderCallsResponse
+	5, // [5:8] is the sub-list for method output_type
+	2, // [2:5] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_api_role_leader_proto_init() }

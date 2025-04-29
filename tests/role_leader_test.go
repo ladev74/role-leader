@@ -2,94 +2,166 @@ package tests
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"reflect"
 	"testing"
 
-	"github.com/pashagolub/pgxmock/v4"
-	"github.com/stretchr/testify/assert"
+	"github.com/golang-migrate/migrate"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 
 	"role-leader/internal/api"
+	"role-leader/internal/postgres"
 	"role-leader/internal/service"
 )
 
-// добавить реализацию с sqlite
 func TestCreateFeedback(t *testing.T) {
 	ctx := context.Background()
 
-	mock, err := pgxmock.NewPool()
+	conn, err := upDB()
 	if err != nil {
-		t.Fatal("error creating mock pool:", err)
+		t.Fatal(err)
 	}
-	defer mock.Close()
+	defer conn.Close()
 
-	srv := service.New(zap.NewNop(), mock)
+	srv := service.New(zap.NewNop(), conn)
 
 	tests := []struct {
-		name       string
-		req        api.CreateFeedbackRequest
-		mockSetup  func()
-		wantStatus string
-		wantErr    bool
+		name    string
+		req     api.CreateFeedbackRequest
+		want    api.Call
+		wantErr error
 	}{
 		{
-			name: "successful update",
+			name: "successful create feedback",
 			req: api.CreateFeedbackRequest{
 				CallId:  "1111",
 				Message: "aboba",
 			},
-			mockSetup: func() {
-				mock.ExpectExec("update schema_call.phone_call set feedback = \\$1 where call_id = \\$2").
-					WithArgs("aboba", "1111").
-					WillReturnResult(pgxmock.NewResult("update", 1))
+			want: api.Call{
+				CallId:    "1111",
+				UserId:    "user1",
+				LeaderId:  "leader1",
+				Title:     "title1",
+				Status:    "status1",
+				Feedback:  "aboba",
+				StartTime: "01:01:01",
 			},
-			wantStatus: service.StatusOkForGrpcResponse,
-			wantErr:    false,
+			wantErr: nil,
 		},
 		{
-			name: "empty message",
+			name: "empty feedback",
 			req: api.CreateFeedbackRequest{
-				CallId:  "1111",
+				CallId:  "2222",
 				Message: "",
 			},
-			mockSetup:  func() {},
-			wantStatus: service.StatusErrForGrpcResponse,
-			wantErr:    true,
+			want: api.Call{
+				CallId:    "2222",
+				UserId:    "user2",
+				LeaderId:  "leader2",
+				Title:     "title2",
+				Status:    "status2",
+				Feedback:  "feedback2",
+				StartTime: "02:02:02",
+			},
+			wantErr: service.ErrEmptyMessage,
 		},
 		{
-			name: "database error",
+			name: "not existing call id",
 			req: api.CreateFeedbackRequest{
-				CallId:  "3333",
-				Message: "test message 3",
+				CallId:  "0000",
+				Message: "aboba",
 			},
-			mockSetup: func() {
-				mock.ExpectExec("update schema_call.phone_call set feedback = \\$1 where call_id = \\$2$").
-					WithArgs("test message 3", "3333").
-					WillReturnError(fmt.Errorf("database error"))
-			},
-			wantStatus: service.StatusErrForGrpcResponse,
-			wantErr:    true,
+			want:    api.Call{},
+			wantErr: service.ErrCallIdNotFound,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.mockSetup != nil {
-				tt.mockSetup()
+			q := "select * from schema_call.phone_call where call_id = $1"
+			var got api.Call
+
+			_, err := srv.CreateFeedback(ctx, &tt.req)
+			conn.QueryRow(ctx, q, tt.req.CallId).Scan(
+				&got.CallId,
+				&got.UserId,
+				&got.LeaderId,
+				&got.Title,
+				&got.Status,
+				&got.Feedback,
+				&got.StartTime,
+			)
+
+			if !reflect.DeepEqual(err, tt.wantErr) {
+				t.Errorf("CreateFeedback() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			got, err := srv.CreateFeedback(ctx, &tt.req)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CreateFeedback() got = %v, want %v", got, tt.want)
 			}
-
-			assert.Equal(t, tt.wantStatus, got.Status)
-			assert.NoError(t, mock.ExpectationsWereMet())
-
-			mock.Reset()
 		})
 	}
 
+	//mock, err := pgxmock.NewPool()
+	//if err != nil {
+	//	t.Fatal("error creating mock pool:", err)
+	//}
+	//defer mock.Close()
+	//mock.ExpectExec("update schema_call.phone_call set feedback = $1 where call_id = $2").
+	//	WithArgs("aboba", 2222).
+	//	WillReturnError(errors.New("no connection established"))
+	//srvForMock := service.New(zap.NewNop(), mock)
+	//_, err := srv.CreateFeedback(ctx, &api.CreateFeedbackRequest{})
+
+}
+
+func upDB() (*pgxpool.Pool, error) {
+	ctx := context.Background()
+
+	cfg := postgres.Config{
+		Host:     "localhost",
+		Port:     "2345",
+		Username: "root",
+		Password: "1234",
+		Database: "postgres",
+		MaxConn:  10,
+		MinConn:  5,
+	}
+
+	cfgForPool := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
+		cfg.Username,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Database,
+		cfg.MaxConn,
+		cfg.MinConn,
+	)
+
+	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
+		cfg.Username,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Database,
+	)
+
+	conn, err := pgxpool.New(ctx, cfgForPool)
+	if err != nil {
+		return nil, fmt.Errorf("unable to connect to postgres: %w", err)
+	}
+
+	migration, err := migrate.New("file://../storage/migrations-for-tests", cfgForMigration)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create migrations: %w", err)
+	}
+
+	err = migration.Up()
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return nil, fmt.Errorf("unable to run migrations: %w", err)
+	}
+
+	return conn, nil
 }
