@@ -29,17 +29,17 @@ func TestCreateFeedback(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		req     api.CreateFeedbackRequest
-		want    api.Call
+		req     *api.CreateFeedbackRequest
+		want    *api.Call
 		wantErr error
 	}{
 		{
 			name: "successful create feedback",
-			req: api.CreateFeedbackRequest{
+			req: &api.CreateFeedbackRequest{
 				CallId:  "1111",
 				Message: "aboba",
 			},
-			want: api.Call{
+			want: &api.Call{
 				CallId:    "1111",
 				UserId:    "user1",
 				LeaderId:  "leader1",
@@ -52,11 +52,11 @@ func TestCreateFeedback(t *testing.T) {
 		},
 		{
 			name: "empty feedback",
-			req: api.CreateFeedbackRequest{
+			req: &api.CreateFeedbackRequest{
 				CallId:  "2222",
 				Message: "",
 			},
-			want: api.Call{
+			want: &api.Call{
 				CallId:    "2222",
 				UserId:    "user2",
 				LeaderId:  "leader2",
@@ -69,11 +69,11 @@ func TestCreateFeedback(t *testing.T) {
 		},
 		{
 			name: "not existing call id",
-			req: api.CreateFeedbackRequest{
+			req: &api.CreateFeedbackRequest{
 				CallId:  "0000",
 				Message: "aboba",
 			},
-			want:    api.Call{},
+			want:    &api.Call{},
 			wantErr: service.ErrCallIdNotFound,
 		},
 	}
@@ -83,7 +83,7 @@ func TestCreateFeedback(t *testing.T) {
 			q := "select * from schema_call.phone_call where call_id = $1"
 			var got api.Call
 
-			_, err := srv.CreateFeedback(ctx, &tt.req)
+			_, err := srv.CreateFeedback(ctx, tt.req)
 			conn.QueryRow(ctx, q, tt.req.CallId).Scan(
 				&got.CallId,
 				&got.UserId,
@@ -97,23 +97,70 @@ func TestCreateFeedback(t *testing.T) {
 			if !reflect.DeepEqual(err, tt.wantErr) {
 				t.Errorf("CreateFeedback() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			if !reflect.DeepEqual(&got, tt.want) {
+				t.Errorf("CreateFeedback() got = %v, want %v", &got, tt.want)
+			}
+		})
+	}
+}
 
+func TestGetCall(t *testing.T) {
+	ctx := context.Background()
+
+	conn, err := upDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	srv := service.New(zap.NewNop(), conn)
+
+	tests := []struct {
+		name    string
+		req     *api.GetCallRequest
+		want    *api.GetCallResponse
+		wantErr error
+	}{
+		{
+			name: "successful get call",
+			req: &api.GetCallRequest{
+				CallId: "2222",
+			},
+
+			want: &api.GetCallResponse{
+				Call: &api.Call{
+					CallId:    "2222",
+					UserId:    "user2",
+					LeaderId:  "leader2",
+					Title:     "title2",
+					Status:    "status2",
+					Feedback:  "feedback2",
+					StartTime: "02:02:02",
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not existing call id",
+			req: &api.GetCallRequest{
+				CallId: "0000",
+			},
+			want:    nil,
+			wantErr: service.ErrCallIdNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := srv.GetCall(ctx, tt.req)
+			if !reflect.DeepEqual(err, tt.wantErr) {
+				t.Errorf("CreateFeedback() error = %v, wantErr %v", err, tt.wantErr)
+			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("CreateFeedback() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
-
-	//mock, err := pgxmock.NewPool()
-	//if err != nil {
-	//	t.Fatal("error creating mock pool:", err)
-	//}
-	//defer mock.Close()
-	//mock.ExpectExec("update schema_call.phone_call set feedback = $1 where call_id = $2").
-	//	WithArgs("aboba", 2222).
-	//	WillReturnError(errors.New("no connection established"))
-	//srvForMock := service.New(zap.NewNop(), mock)
-	//_, err := srv.CreateFeedback(ctx, &api.CreateFeedbackRequest{})
 
 }
 

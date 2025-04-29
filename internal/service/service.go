@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -12,9 +14,6 @@ import (
 	"role-leader/internal/api"
 )
 
-//	type DB interface {
-//		Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
-//	}
 type Service struct {
 	api.RoleLeaderServer
 	logger *zap.Logger
@@ -69,14 +68,18 @@ func (s *Service) GetCall(ctx context.Context, req *api.GetCallRequest) (*api.Ge
 		&call.UserId,
 		&call.LeaderId,
 		&call.Title,
-		&call.StartTime,
 		&call.Status,
 		&call.Feedback,
+		&call.StartTime,
 	)
 
+	if errors.Is(err, pgx.ErrNoRows) {
+		s.logger.Error("GetCall: call id not found: ", zap.Error(err), zap.String("call_id = ", req.CallId))
+		return nil, ErrCallIdNotFound
+	}
 	if err != nil {
-		s.logger.Error("Failed to get call", zap.Error(err))
-		return nil, fmt.Errorf("failed to get call: %w", err)
+		s.logger.Error("GetCall: failed to get call", zap.Error(err))
+		return nil, ErrInternalError
 	}
 
 	return &api.GetCallResponse{Call: &call}, nil
