@@ -2,12 +2,27 @@ syntax = "proto3";
 
 option go_package = "internal/api";
 
+import "google/api/annotations.proto";
+
 package api;
 
 service RoleLeader {
-  rpc CreateFeedback (CreateFeedbackRequest) returns (CreateFeedbackResponse);
-  rpc GetCall (GetCallRequest) returns (GetCallResponse);
-  rpc GetLeaderCalls (GetLeaderCallsRequest) returns (GetLeaderCallsResponse);
+  rpc CreateFeedback (CreateFeedbackRequest) returns (CreateFeedbackResponse){
+    option (google.api.http) = {
+      post: "/api/role-leader"
+      body: "*"
+    };
+  };
+  rpc GetCall (GetCallRequest) returns (GetCallResponse){
+    option (google.api.http) = {
+      get: "/api/role-leader/{call_id}"
+    };
+  };
+  rpc GetLeaderCalls (GetLeaderCallsRequest) returns (GetLeaderCallsResponse){
+    option (google.api.http) = {
+      get: "/api/role-leader/{leader_id}"
+    };
+  };
 }
 
 message Call {

@@ -2,11 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: api/role-leader.proto
+// source: role-leader.proto
 
 package api
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -36,7 +37,7 @@ type Call struct {
 
 func (x *Call) Reset() {
 	*x = Call{}
-	mi := &file_api_role_leader_proto_msgTypes[0]
+	mi := &file_role_leader_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -48,7 +49,7 @@ func (x *Call) String() string {
 func (*Call) ProtoMessage() {}
 
 func (x *Call) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[0]
+	mi := &file_role_leader_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,7 +62,7 @@ func (x *Call) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Call.ProtoReflect.Descriptor instead.
 func (*Call) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{0}
+	return file_role_leader_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Call) GetCallId() string {
@@ -123,7 +124,7 @@ type CreateFeedbackRequest struct {
 
 func (x *CreateFeedbackRequest) Reset() {
 	*x = CreateFeedbackRequest{}
-	mi := &file_api_role_leader_proto_msgTypes[1]
+	mi := &file_role_leader_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -135,7 +136,7 @@ func (x *CreateFeedbackRequest) String() string {
 func (*CreateFeedbackRequest) ProtoMessage() {}
 
 func (x *CreateFeedbackRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[1]
+	mi := &file_role_leader_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -148,7 +149,7 @@ func (x *CreateFeedbackRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateFeedbackRequest.ProtoReflect.Descriptor instead.
 func (*CreateFeedbackRequest) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{1}
+	return file_role_leader_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateFeedbackRequest) GetCallId() string {
@@ -173,7 +174,7 @@ type CreateFeedbackResponse struct {
 
 func (x *CreateFeedbackResponse) Reset() {
 	*x = CreateFeedbackResponse{}
-	mi := &file_api_role_leader_proto_msgTypes[2]
+	mi := &file_role_leader_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -185,7 +186,7 @@ func (x *CreateFeedbackResponse) String() string {
 func (*CreateFeedbackResponse) ProtoMessage() {}
 
 func (x *CreateFeedbackResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[2]
+	mi := &file_role_leader_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -198,7 +199,7 @@ func (x *CreateFeedbackResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateFeedbackResponse.ProtoReflect.Descriptor instead.
 func (*CreateFeedbackResponse) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{2}
+	return file_role_leader_proto_rawDescGZIP(), []int{2}
 }
 
 type GetCallRequest struct {
@@ -210,7 +211,7 @@ type GetCallRequest struct {
 
 func (x *GetCallRequest) Reset() {
 	*x = GetCallRequest{}
-	mi := &file_api_role_leader_proto_msgTypes[3]
+	mi := &file_role_leader_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -222,7 +223,7 @@ func (x *GetCallRequest) String() string {
 func (*GetCallRequest) ProtoMessage() {}
 
 func (x *GetCallRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[3]
+	mi := &file_role_leader_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -235,7 +236,7 @@ func (x *GetCallRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCallRequest.ProtoReflect.Descriptor instead.
 func (*GetCallRequest) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{3}
+	return file_role_leader_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetCallRequest) GetCallId() string {
@@ -254,7 +255,7 @@ type GetCallResponse struct {
 
 func (x *GetCallResponse) Reset() {
 	*x = GetCallResponse{}
-	mi := &file_api_role_leader_proto_msgTypes[4]
+	mi := &file_role_leader_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -266,7 +267,7 @@ func (x *GetCallResponse) String() string {
 func (*GetCallResponse) ProtoMessage() {}
 
 func (x *GetCallResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[4]
+	mi := &file_role_leader_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -279,7 +280,7 @@ func (x *GetCallResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCallResponse.ProtoReflect.Descriptor instead.
 func (*GetCallResponse) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{4}
+	return file_role_leader_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetCallResponse) GetCall() *Call {
@@ -298,7 +299,7 @@ type GetLeaderCallsRequest struct {
 
 func (x *GetLeaderCallsRequest) Reset() {
 	*x = GetLeaderCallsRequest{}
-	mi := &file_api_role_leader_proto_msgTypes[5]
+	mi := &file_role_leader_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -310,7 +311,7 @@ func (x *GetLeaderCallsRequest) String() string {
 func (*GetLeaderCallsRequest) ProtoMessage() {}
 
 func (x *GetLeaderCallsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[5]
+	mi := &file_role_leader_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -323,7 +324,7 @@ func (x *GetLeaderCallsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLeaderCallsRequest.ProtoReflect.Descriptor instead.
 func (*GetLeaderCallsRequest) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{5}
+	return file_role_leader_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetLeaderCallsRequest) GetLeaderId() string {
@@ -342,7 +343,7 @@ type GetLeaderCallsResponse struct {
 
 func (x *GetLeaderCallsResponse) Reset() {
 	*x = GetLeaderCallsResponse{}
-	mi := &file_api_role_leader_proto_msgTypes[6]
+	mi := &file_role_leader_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -354,7 +355,7 @@ func (x *GetLeaderCallsResponse) String() string {
 func (*GetLeaderCallsResponse) ProtoMessage() {}
 
 func (x *GetLeaderCallsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_role_leader_proto_msgTypes[6]
+	mi := &file_role_leader_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -367,7 +368,7 @@ func (x *GetLeaderCallsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLeaderCallsResponse.ProtoReflect.Descriptor instead.
 func (*GetLeaderCallsResponse) Descriptor() ([]byte, []int) {
-	return file_api_role_leader_proto_rawDescGZIP(), []int{6}
+	return file_role_leader_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetLeaderCallsResponse) GetCalls() []*Call {
@@ -377,11 +378,11 @@ func (x *GetLeaderCallsResponse) GetCalls() []*Call {
 	return nil
 }
 
-var File_api_role_leader_proto protoreflect.FileDescriptor
+var File_role_leader_proto protoreflect.FileDescriptor
 
-const file_api_role_leader_proto_rawDesc = "" +
+const file_role_leader_proto_rawDesc = "" +
 	"\n" +
-	"\x15api/role-leader.proto\x12\x03api\"\xbe\x01\n" +
+	"\x11role-leader.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\"\xbe\x01\n" +
 	"\x04Call\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
@@ -402,27 +403,27 @@ const file_api_role_leader_proto_rawDesc = "" +
 	"\x15GetLeaderCallsRequest\x12\x1b\n" +
 	"\tleader_id\x18\x01 \x01(\tR\bleaderId\"9\n" +
 	"\x16GetLeaderCallsResponse\x12\x1f\n" +
-	"\x05calls\x18\x01 \x03(\v2\t.api.CallR\x05calls2\xd8\x01\n" +
+	"\x05calls\x18\x01 \x03(\v2\t.api.CallR\x05calls2\xbf\x02\n" +
 	"\n" +
-	"RoleLeader\x12I\n" +
-	"\x0eCreateFeedback\x12\x1a.api.CreateFeedbackRequest\x1a\x1b.api.CreateFeedbackResponse\x124\n" +
-	"\aGetCall\x12\x13.api.GetCallRequest\x1a\x14.api.GetCallResponse\x12I\n" +
-	"\x0eGetLeaderCalls\x12\x1a.api.GetLeaderCallsRequest\x1a\x1b.api.GetLeaderCallsResponseB\x0eZ\finternal/apib\x06proto3"
+	"RoleLeader\x12f\n" +
+	"\x0eCreateFeedback\x12\x1a.api.CreateFeedbackRequest\x1a\x1b.api.CreateFeedbackResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/role-leader\x12X\n" +
+	"\aGetCall\x12\x13.api.GetCallRequest\x1a\x14.api.GetCallResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/role-leader/{call_id}\x12o\n" +
+	"\x0eGetLeaderCalls\x12\x1a.api.GetLeaderCallsRequest\x1a\x1b.api.GetLeaderCallsResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/role-leader/{leader_id}B\x0eZ\finternal/apib\x06proto3"
 
 var (
-	file_api_role_leader_proto_rawDescOnce sync.Once
-	file_api_role_leader_proto_rawDescData []byte
+	file_role_leader_proto_rawDescOnce sync.Once
+	file_role_leader_proto_rawDescData []byte
 )
 
-func file_api_role_leader_proto_rawDescGZIP() []byte {
-	file_api_role_leader_proto_rawDescOnce.Do(func() {
-		file_api_role_leader_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_role_leader_proto_rawDesc), len(file_api_role_leader_proto_rawDesc)))
+func file_role_leader_proto_rawDescGZIP() []byte {
+	file_role_leader_proto_rawDescOnce.Do(func() {
+		file_role_leader_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_role_leader_proto_rawDesc), len(file_role_leader_proto_rawDesc)))
 	})
-	return file_api_role_leader_proto_rawDescData
+	return file_role_leader_proto_rawDescData
 }
 
-var file_api_role_leader_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_api_role_leader_proto_goTypes = []any{
+var file_role_leader_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_role_leader_proto_goTypes = []any{
 	(*Call)(nil),                   // 0: api.Call
 	(*CreateFeedbackRequest)(nil),  // 1: api.CreateFeedbackRequest
 	(*CreateFeedbackResponse)(nil), // 2: api.CreateFeedbackResponse
@@ -431,7 +432,7 @@ var file_api_role_leader_proto_goTypes = []any{
 	(*GetLeaderCallsRequest)(nil),  // 5: api.GetLeaderCallsRequest
 	(*GetLeaderCallsResponse)(nil), // 6: api.GetLeaderCallsResponse
 }
-var file_api_role_leader_proto_depIdxs = []int32{
+var file_role_leader_proto_depIdxs = []int32{
 	0, // 0: api.GetCallResponse.call:type_name -> api.Call
 	0, // 1: api.GetLeaderCallsResponse.calls:type_name -> api.Call
 	1, // 2: api.RoleLeader.CreateFeedback:input_type -> api.CreateFeedbackRequest
@@ -447,26 +448,26 @@ var file_api_role_leader_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_api_role_leader_proto_init() }
-func file_api_role_leader_proto_init() {
-	if File_api_role_leader_proto != nil {
+func init() { file_role_leader_proto_init() }
+func file_role_leader_proto_init() {
+	if File_role_leader_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_role_leader_proto_rawDesc), len(file_api_role_leader_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_role_leader_proto_rawDesc), len(file_role_leader_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_role_leader_proto_goTypes,
-		DependencyIndexes: file_api_role_leader_proto_depIdxs,
-		MessageInfos:      file_api_role_leader_proto_msgTypes,
+		GoTypes:           file_role_leader_proto_goTypes,
+		DependencyIndexes: file_role_leader_proto_depIdxs,
+		MessageInfos:      file_role_leader_proto_msgTypes,
 	}.Build()
-	File_api_role_leader_proto = out.File
-	file_api_role_leader_proto_goTypes = nil
-	file_api_role_leader_proto_depIdxs = nil
+	File_role_leader_proto = out.File
+	file_role_leader_proto_goTypes = nil
+	file_role_leader_proto_depIdxs = nil
 }

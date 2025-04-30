@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: api/role-leader.proto
+// source: role-leader.proto
 
 package api
 
@@ -193,5 +193,5 @@ var RoleLeader_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/role-leader.proto",
+	Metadata: "role-leader.proto",
 }
