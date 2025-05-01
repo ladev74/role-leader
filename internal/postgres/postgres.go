@@ -47,7 +47,7 @@ func New(ctx context.Context, config Config) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("unable to connect to postgres: %w", err)
 	}
 
-	migration, err := migrate.New("file://./storage/migrations", cfgForMigration)
+	migration, err := migrate.New("file://./storage/migrations-for-tests", cfgForMigration)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create migrations: %w", err)
 	}

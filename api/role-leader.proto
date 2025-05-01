@@ -9,18 +9,18 @@ package api;
 service RoleLeader {
   rpc CreateFeedback (CreateFeedbackRequest) returns (CreateFeedbackResponse){
     option (google.api.http) = {
-      post: "/api/role-leader"
+      post: "/api/create-feedback"
       body: "*"
     };
   };
   rpc GetCall (GetCallRequest) returns (GetCallResponse){
     option (google.api.http) = {
-      get: "/api/role-leader/{call_id}"
+      get: "/api/get-call/{call_id}"
     };
   };
   rpc GetLeaderCalls (GetLeaderCallsRequest) returns (GetLeaderCallsResponse){
     option (google.api.http) = {
-      get: "/api/role-leader/{leader_id}"
+      get: "/api/leader-calls/{leader_id}"
     };
   };
 }

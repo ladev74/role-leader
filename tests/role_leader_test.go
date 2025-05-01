@@ -106,7 +106,6 @@ func TestCreateFeedback(t *testing.T) {
 
 func TestGetCall(t *testing.T) {
 	ctx := context.Background()
-
 	conn, err := upDB()
 	if err != nil {
 		t.Fatal(err)

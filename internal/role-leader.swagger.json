@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/api/role-leader": {
+    "/api/create-feedback": {
       "post": {
         "operationId": "RoleLeader_CreateFeedback",
         "responses": {
@@ -48,7 +48,7 @@
         ]
       }
     },
-    "/api/role-leader/{callId}": {
+    "/api/get-call/{callId}": {
       "get": {
         "operationId": "RoleLeader_GetCall",
         "responses": {
@@ -78,7 +78,7 @@
         ]
       }
     },
-    "/api/role-leader/{leaderId}": {
+    "/api/leaders-calls/{leaderId}": {
       "get": {
         "operationId": "RoleLeader_GetLeaderCalls",
         "responses": {

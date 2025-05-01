@@ -12,11 +12,16 @@ import (
 type Config struct {
 	Postgres postgres.Config `yaml:"POSTGRES" env:"POSTGRES"`
 	GRPC     GrpcConfig      `yaml:"GRPC" env:"GRPC"`
+	REST     RestConfig      `yaml:"REST" env:"REST"`
 	Logger   logger.Config   `yaml:"LOGGER" env:"LOGGER"`
 }
 
 type GrpcConfig struct {
 	Port int `yaml:"ROLE_LEADER_GRPC_PORT" env:"ROLE_LEADER_GRPC_PORT"`
+}
+
+type RestConfig struct {
+	Port int `yaml:"ROLE_LEADER_REST_PORT" env:"ROLE_LEADER_REST_PORT"`
 }
 
 func New() (*Config, error) {
