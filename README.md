@@ -144,5 +144,5 @@ curl -X GET http://localhost:8080/api/leader-calls/leader_1
 |--------------------------|-------------------------------------|
 | PostgreSQl               | Хранение данных о звонках           |
 | GRPC                     |                                     |
-| REST API                 |                                     |
+| GRPC Gateway             |                                     |
 | Docker  + Docker Compose | Контейнеризация и изоляция сервисов |
