@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
 	"os"
 	"os/signal"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
 	"role-leader/internal/api"
@@ -69,7 +66,7 @@ func main() {
 
 	go func() {
 		l.Info("REST server started", zap.Int("addr: ", cfg.REST.Port))
-		if err := runRest(ctx, l, *cfg); err != nil {
+		if err := service.RunRest(ctx, l, *cfg); err != nil {
 			l.Fatal("failed to serve", zap.Error(err))
 		}
 	}()
@@ -81,39 +78,4 @@ func main() {
 		l.Info("GRPC server stopped", zap.Int("addr: ", cfg.GRPC.Port))
 	}
 
-}
-
-func runRest(ctx context.Context, l *zap.Logger, cfg config.Config) error {
-	mux := runtime.NewServeMux()
-
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-
-	err := api.RegisterRoleLeaderHandlerFromEndpoint(
-		ctx,
-		mux,
-		fmt.Sprintf("0.0.0.0:%d", cfg.GRPC.Port),
-		opts,
-	)
-
-	if err != nil {
-		l.Fatal("failed to register REST handlers", zap.Error(err))
-		return fmt.Errorf("failed to register REST handlers: %w", err)
-	}
-
-	httpMux := http.NewServeMux()
-	httpMux.Handle("/", mux)
-
-	restServer := &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", cfg.REST.Port),
-		Handler: httpMux,
-	}
-
-	if err := restServer.ListenAndServe(); err != nil {
-		l.Fatal("failed to serve REST", zap.Error(err))
-		return fmt.Errorf("failed to serve REST: %w", err)
-	}
-
-	return nil
 }

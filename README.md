@@ -1,20 +1,19 @@
-# RoleLeader Service API
-
-Микросервис для управления встречами и обратной связью между лидерами и пользователями.
+# Role-Leader Service Api
+Микросервис для управления встречами и обратной связью между лидерами и пользователями, для командного проектного этапа, на курсе Yandex Lyceum "Веб-разработка на Go | Специализации Яндекс Лицея | Весна 24/25"
 
 ## API Endpoints
 
 ### 1. Создание обратной связи для встречи
 
 **Endpoint:**  
-`POST /api/feedback`
+`POST: /api/create-feedback`
 
 **Request Body (JSON):**
 
 ```json
 {
-  "meeting_id": "meeting_123",
-  "message": "Отличная встреча! Всё четко по делу."
+  "call_id": "call_1",
+  "message": "Discussed the key points"
 }
 ```
 
@@ -22,7 +21,7 @@
 
 ```json
 {
-  "status": "success"
+  "{}"
 }
 ```
 
@@ -31,26 +30,26 @@
 ### 2. Получение информации о встрече
 
 **Endpoint:**  
-`GET /api/leaders/meetings/{meeting_id}`
+`GET: "/api/get-call/{call_id}"`
 
 **Пример запроса:**
 
 ```
-GET /api/leaders/meetings/meeting_123
+GET /api/get-call/call_1
 ```
 
 **Response:**
 
 ```json
 {
-  "meeting": {
-    "meeting_id": "meeting_123",
-    "user_id": "user_456",
-    "leader_id": "leader_789",
-    "title": "Планирование Q4",
-    "start_time": "2024-03-20T14:00:00Z",
-    "status": "completed",
-    "feedback": "Обсудили ключевые метрики"
+  "call": {
+    "call_id": "call_1",
+    "user_id": "user_1",
+    "leader_id": "leader_1",
+    "title": "Planning",
+    "start_time": "12:30:00",
+    "status": "Completed",
+    "feedback": "Discussed the key points"
   }
 }
 ```
@@ -60,36 +59,36 @@ GET /api/leaders/meetings/meeting_123
 ### 3. Получение всех встреч лидера
 
 **Endpoint:**  
-`GET /api/leaders/{leader_id}/meetings`
+`GET: /api/leader-calls/{leader_id}`
 
 **Пример запроса:**
 
 ```
-GET /api/leaders/leader_789/meetings
+GET /api/leader-calls/leader_1
 ```
 
 **Response:**
 
 ```json
 {
-  "meetings": [
+  "calls": [
     {
-      "meeting_id": "meeting_123",
-      "user_id": "user_456",
-      "leader_id": "leader_789",
-      "title": "Планирование Q4",
-      "start_time": "2024-03-20T14:00:00Z",
-      "status": "completed",
-      "feedback": "Обсудили ключевые метрики"
+      "call_id": "call_1",
+      "user_id": "user_1",
+      "leader_id": "leader_1",
+      "title": "Planning",
+      "start_time": "12:30:00",
+      "status": "Completed",
+      "feedback": "Discussed the key points"
     },
     {
-      "meeting_id": "meeting_124",
-      "user_id": "user_457",
-      "leader_id": "leader_789",
-      "title": "Разбор итогов спринта",
-      "start_time": "2024-03-21T10:00:00Z",
-      "status": "scheduled",
-      "feedback": ""
+      "call_id": "call_2",
+      "user_id": "user_2",
+      "leader_id": "leader_1",
+      "title": "title4",
+      "start_time": "04:04:04",
+      "status": "status4",
+      "feedback": "feedback4"
     }
   ]
 }
@@ -102,24 +101,24 @@ GET /api/leaders/leader_789/meetings
 ### Создание обратной связи
 
 ```bash
-curl -X POST "http://localhost:8080/api/feedback" \
+curl -X POST http://localhost:8080/api/create-feedback \
 -H "Content-Type: application/json" \
 -d '{
-  "meeting_id": "meeting_123",
-  "message": "Отличная встреча!"
+  "call_id": "call_1",
+  "message": "Discussed the key points"
 }'
 ```
 
 ### Получение встречи
 
 ```bash
-curl "http://localhost:8080/api/leaders/meetings/meeting_123"
+curl -X GET http://localhost:8080/api/get-call/call_1 
 ```
 
 ### Получение встреч лидера
 
 ```bash
-curl "http://localhost:8080/api/leaders/leader_789/meetings"
+curl -X GET http://localhost:8080/api/leader-calls/leader_1 
 ```
 
 ---
@@ -129,11 +128,12 @@ curl "http://localhost:8080/api/leaders/leader_789/meetings"
 ### Объект Meeting
 
 | Поле       | Тип    | Описание                          |
-| ---------- | ------ | --------------------------------- |
-| meeting_id | string | Уникальный ID встречи             |
+|------------| ------ | --------------------------------- |
+| call_id    | string | Уникальный ID встречи             |
 | user_id    | string | ID пользователя                   |
 | leader_id  | string | ID лидера                         |
 | title      | string | Название встречи                  |
-| start_time | string | Время начала (ISO 8601)           |
 | status     | string | Статус (planned/active/completed) |
 | feedback   | string | Комментарий обратной связи        |
+| start_time | string | Время начала (ISO 8601)           |
+
