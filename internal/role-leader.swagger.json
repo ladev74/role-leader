@@ -78,7 +78,7 @@
         ]
       }
     },
-    "/api/leaders-calls/{leaderId}": {
+    "/api/leader-calls/{leaderId}": {
       "get": {
         "operationId": "RoleLeader_GetLeaderCalls",
         "responses": {

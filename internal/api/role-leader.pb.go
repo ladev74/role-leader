@@ -403,12 +403,12 @@ const file_role_leader_proto_rawDesc = "" +
 	"\x15GetLeaderCallsRequest\x12\x1b\n" +
 	"\tleader_id\x18\x01 \x01(\tR\bleaderId\"9\n" +
 	"\x16GetLeaderCallsResponse\x12\x1f\n" +
-	"\x05calls\x18\x01 \x03(\v2\t.api.CallR\x05calls2\xc2\x02\n" +
+	"\x05calls\x18\x01 \x03(\v2\t.api.CallR\x05calls2\xc1\x02\n" +
 	"\n" +
 	"RoleLeader\x12j\n" +
 	"\x0eCreateFeedback\x12\x1a.api.CreateFeedbackRequest\x1a\x1b.api.CreateFeedbackResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/create-feedback\x12U\n" +
-	"\aGetCall\x12\x13.api.GetCallRequest\x1a\x14.api.GetCallResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/get-call/{call_id}\x12q\n" +
-	"\x0eGetLeaderCalls\x12\x1a.api.GetLeaderCallsRequest\x1a\x1b.api.GetLeaderCallsResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/leaders-calls/{leader_id}B\x0eZ\finternal/apib\x06proto3"
+	"\aGetCall\x12\x13.api.GetCallRequest\x1a\x14.api.GetCallResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/get-call/{call_id}\x12p\n" +
+	"\x0eGetLeaderCalls\x12\x1a.api.GetLeaderCallsRequest\x1a\x1b.api.GetLeaderCallsResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/leader-calls/{leader_id}B\x0eZ\finternal/apib\x06proto3"
 
 var (
 	file_role_leader_proto_rawDescOnce sync.Once

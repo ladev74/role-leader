@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
@@ -109,7 +108,6 @@ func runRest(ctx context.Context, l *zap.Logger, cfg config.Config) error {
 	restServer := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%d", cfg.REST.Port),
 		Handler: httpMux,
-		//Handler: loggingMiddleware(l, httpMux),
 	}
 
 	if err := restServer.ListenAndServe(); err != nil {
@@ -118,37 +116,4 @@ func runRest(ctx context.Context, l *zap.Logger, cfg config.Config) error {
 	}
 
 	return nil
-}
-func loggingMiddleware(l *zap.Logger, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		l.Info(
-			"new request",
-			zap.String("method", r.Method),
-			zap.String("path", r.URL.Path),
-			zap.String("remote_addr", r.RemoteAddr),
-			zap.String("user_agent", r.UserAgent()),
-			zap.Time("time", time.Now()),
-		)
-		//wrappedWriter := &responseLogger{w: w, status: http.StatusOK}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-type responseLogger struct {
-	w      http.ResponseWriter
-	status int
-}
-
-func (l *responseLogger) Header() http.Header {
-	return l.w.Header()
-}
-
-func (l *responseLogger) Write(b []byte) (int, error) {
-	return l.w.Write(b)
-}
-
-func (l *responseLogger) WriteHeader(statusCode int) {
-	l.status = statusCode
-	l.w.WriteHeader(statusCode)
 }

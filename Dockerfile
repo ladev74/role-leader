@@ -9,7 +9,7 @@ COPY . .
 
 RUN go build -o roleleader cmd/main.go
 
-FROM alpine:latest
+FROM alpine:3.21
 
 RUN apk --no-cache add ca-certificates
 
