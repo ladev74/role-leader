@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 )
 
@@ -16,9 +17,19 @@ type Config struct {
 func New(cfg Config) (*zap.Logger, error) {
 	switch cfg.Env {
 	case "local":
-		logger, err := zap.NewDevelopment()
+		config := zap.NewDevelopmentConfig()
+
+		config.DisableCaller = true
+		config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		config.EncoderConfig.LineEnding = "\n\n"
+		config.EncoderConfig.ConsoleSeparator = " | "
+		config.EncoderConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendString(t.Format("15:04:05"))
+		}
+
+		logger, err := config.Build()
 		if err != nil {
-			return nil, fmt.Errorf("can't initialize logger: %v", err)
+			return nil, fmt.Errorf("failed to create logger: %w", err)
 		}
 
 		return logger, nil
