@@ -129,7 +129,7 @@ curl -X GET http://localhost:8080/api/leader-calls/leader_1
 ```bash
 
 # перед запуском необходимо поднять docker container с PostgreSQL:
-docker run --env-file=./config/config-for-test.env -d --rm -p 2345:5432 --name ps-for-testing postgres
+docker run --env-file=./config/config-for-testDB.env -d --rm -p 2345:5432 --name ps-for-testing postgres:17
 # после запуска тестовой базы данных можно запускать тесты:
 go test tests/role_leader_test.go -v
 ```
