@@ -1,5 +1,5 @@
 # Role-Leader Service Api
-Микросервис для управления встречами и обратной связью между лидерами и пользователями.
+Микросервис на Go для управления онлайн-встречами и сбора обратной связи между пользователями и их лидами. Использует gRPC + REST (через gRPC Gateway), PostgreSQL и Docker.
 Сервис разработан для командного проектного этапа, на курсе Yandex Lyceum "Веб-разработка на Go | Специализации Яндекс Лицея | Весна 24/25"
 
 ## API Endpoints
@@ -124,6 +124,27 @@ curl -X GET http://localhost:8080/api/leader-calls/leader_1
 
 ---
 
+## Тестирование
+
+```bash
+
+# перед запуском необходимо поднять docker container с PostgreSQL:
+docker run --env-file=./config/config-for-test.env -d --rm -p 2345:5432 --name ps-for-testing postgres
+# после запуска тестовой базы данных можно запускать тесты:
+go test tests/role_leader_test.go -v
+```
+
+---
+
+## Запуск приложения
+
+```bash
+# на локальной машине:
+go run cmd/main.go
+# в docker container через docker-compose (запустится вместе с PostgreSQL)
+docker compose run --build -d
+```
+
 ## Структуры данных
 
 ### Объект Call
@@ -140,9 +161,9 @@ curl -X GET http://localhost:8080/api/leader-calls/leader_1
 
 ### Использованные технологии
 
-| Название                 | Применение                          |
-|--------------------------|-------------------------------------|
-| PostgreSQl               | Хранение данных о звонках           |
-| GRPC                     |                                     |
-| GRPC Gateway             |                                     |
-| Docker  + Docker Compose | Контейнеризация и изоляция сервисов |
+| Название                 | Применение                                                 |
+|--------------------------|------------------------------------------------------------|
+| PostgreSQl               | Хранение данных о звонках                                  |
+| GRPC                     | Внутреннее взаимодействие между сервисами                  |
+| GRPC Gateway             | Генерация REST API поверх gRPC для поддержки HTTP-клиентов |
+| Docker  + Docker Compose | Контейнеризация и изоляция сервисов                        |
