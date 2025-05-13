@@ -142,7 +142,7 @@ go test tests/role_leader_test.go -v
 # на локальной машине:
 go run cmd/main.go
 # в docker container через docker-compose (запустится вместе с PostgreSQL)
-docker compose run --build -d
+docker compose up --build -d
 ```
 
 ## Структуры данных
