@@ -4,119 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/golang-migrate/migrate"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
 	"go.uber.org/zap"
 
 	"role-leader/internal/api"
-	postgres2 "role-leader/internal/postgres"
+	"role-leader/internal/postgres"
 	"role-leader/internal/service/grpcSrv"
 )
-
-func upDB2() {
-	os.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
-
-	l, _ := zap.NewDevelopment()
-
-	ctx := context.Background()
-
-	req := testcontainers.ContainerRequest{
-		Image:        "postgres:17",
-		ExposedPorts: []string{"5432/tcp"},
-		Env: map[string]string{
-			"POSTGRES_PASSWORD": "1234",
-			"POSTGRES_USER":     "root",
-			"POSTGRES_DB":       "postgres",
-		},
-		WaitingFor: wait.ForListeningPort("5432/tcp").WithStartupTimeout(60 * time.Second),
-	}
-
-	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-		Reuse:            false,
-	})
-	if err != nil {
-		l.Error("Failed to start container", zap.Error(err))
-	}
-
-	host, err := container.Host(ctx)
-	if err != nil {
-		l.Error("Failed to get container", zap.Error(err))
-	}
-
-	port, err := container.MappedPort(ctx, "5432")
-	if err != nil {
-		l.Error("Failed to get mapped port", zap.Error(err))
-	}
-
-	//dsn := fmt.Sprintf("host=%s port=%s user=root password=1234 dbname=postgres sslmode=disable", host, port.Port())
-	//dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool", "root", "1234", host, port, "postgres")
-	cfg := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
-		"root",
-		"1234",
-		host,
-		port.Port(),
-		"postgres",
-	)
-
-	conn, err := pgxpool.New(ctx, cfg+"_max_conns=10&pool_min_conns=5")
-	if err != nil {
-		l.Error("Failed to create pool", zap.Error(err))
-		return
-	}
-
-	if err := conn.Ping(ctx); err != nil {
-		l.Error("Failed to ping pool", zap.Error(err))
-		return
-	} else {
-		l.Info("Successfully connected to postgres")
-	}
-
-	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
-		"root",
-		"1234",
-		host,
-		port.Port(),
-		"postgres",
-	)
-
-	migration, err := migrate.New("file://../storage/migrations-for-tests", cfgForMigration)
-	if err != nil {
-		l.Error("Failed to create migrations", zap.Error(err))
-	}
-
-	err = migration.Up()
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		l.Error("Failed to run migrations", zap.Error(err))
-	}
-
-	//migration, err := migrate.New("file://../storage/migrations-for-tests", cfg)
-	//if err != nil {
-	//	t.Errorf("Failed to create migrations: %v", err)
-	//}
-	//
-	//err = migration.Up()
-	//if err != nil {
-	//	t.Errorf("Failed to run migrations: %v", err)
-	//}
-
-	time.Sleep(50 * time.Second)
-
-	defer func() {
-		if err := container.Terminate(ctx); err != nil {
-			l.Error("Failed to terminate postgres container: %v", zap.Error(err))
-		}
-		conn.Close()
-	}()
-}
 
 func TestCreateFeedback(t *testing.T) {
 
@@ -357,7 +255,7 @@ func TestGetLeaderCalls(t *testing.T) {
 func upDB() (*pgxpool.Pool, error) {
 	ctx := context.Background()
 
-	cfg := postgres2.Config{
+	cfg := postgres.Config{
 		Host:     "localhost",
 		Port:     "2345",
 		Username: "root",
