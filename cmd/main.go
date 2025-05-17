@@ -16,8 +16,7 @@ import (
 	"role-leader/internal/config"
 	"role-leader/internal/logger"
 	"role-leader/internal/postgres"
-	"role-leader/internal/service/gateway"
-	"role-leader/internal/service/grpcSrv"
+	"role-leader/internal/service"
 )
 
 func main() {
@@ -51,7 +50,7 @@ func main() {
 	if err != nil {
 		l.Fatal("failed to listen", zap.Error(err))
 	}
-	srv := grpcSrv.New(l, conn)
+	srv := service.New(l, conn)
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(logger.Interceptor(l)))
 	api.RegisterRoleLeaderServer(grpcServer, srv)
 	reflection.Register(grpcServer)
@@ -65,7 +64,7 @@ func main() {
 
 	go func() {
 		l.Info("REST server started", zap.Int("addr: ", cfg.REST.Port))
-		if err := gateway.RunRest(ctx, l, *cfg); err != nil {
+		if err := service.RunRest(ctx, l, *cfg); err != nil {
 			l.Fatal("failed to serve", zap.Error(err))
 		}
 	}()

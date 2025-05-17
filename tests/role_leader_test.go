@@ -13,7 +13,7 @@ import (
 
 	"role-leader/internal/api"
 	"role-leader/internal/postgres"
-	"role-leader/internal/service/grpcSrv"
+	"role-leader/internal/service"
 )
 
 func TestCreateFeedback(t *testing.T) {
@@ -26,7 +26,7 @@ func TestCreateFeedback(t *testing.T) {
 	}
 	defer conn.Close()
 
-	srv := grpcSrv.New(zap.NewNop(), conn)
+	srv := service.New(zap.NewNop(), conn)
 
 	tests := []struct {
 		name    string
@@ -66,7 +66,7 @@ func TestCreateFeedback(t *testing.T) {
 				Feedback:  "feedback2",
 				StartTime: "02:02:02",
 			},
-			wantErr: grpcSrv.ErrEmptyMessage,
+			wantErr: service.ErrEmptyMessage,
 		},
 		{
 			name: "not existing call id",
@@ -75,7 +75,7 @@ func TestCreateFeedback(t *testing.T) {
 				Message: "aboba",
 			},
 			want:    &api.Call{},
-			wantErr: grpcSrv.ErrCallIdNotFound,
+			wantErr: service.ErrCallIdNotFound,
 		},
 	}
 
@@ -113,7 +113,7 @@ func TestGetCall(t *testing.T) {
 	}
 	defer conn.Close()
 
-	srv := grpcSrv.New(zap.NewNop(), conn)
+	srv := service.New(zap.NewNop(), conn)
 
 	tests := []struct {
 		name    string
@@ -146,7 +146,7 @@ func TestGetCall(t *testing.T) {
 				CallId: "0000",
 			},
 			want:    nil,
-			wantErr: grpcSrv.ErrCallIdNotFound,
+			wantErr: service.ErrCallIdNotFound,
 		},
 	}
 
@@ -172,7 +172,7 @@ func TestGetLeaderCalls(t *testing.T) {
 	}
 	defer conn.Close()
 
-	srv := grpcSrv.New(zap.NewNop(), conn)
+	srv := service.New(zap.NewNop(), conn)
 
 	tests := []struct {
 		name    string
@@ -235,7 +235,7 @@ func TestGetLeaderCalls(t *testing.T) {
 				LeaderId: "leader0",
 			},
 			want:    nil,
-			wantErr: grpcSrv.ErrLeaderIdNotFound,
+			wantErr: service.ErrLeaderIdNotFound,
 		},
 	}
 
