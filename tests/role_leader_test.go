@@ -4,29 +4,137 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/golang-migrate/migrate"
+	_ "github.com/golang-migrate/migrate/database/postgres"
+	_ "github.com/golang-migrate/migrate/source/file"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"go.uber.org/zap"
 
 	"role-leader/internal/api"
-	"role-leader/internal/postgres"
 	"role-leader/internal/service"
 )
+
+var (
+	containerP testcontainers.Container
+	connP      *pgxpool.Pool
+)
+
+func upDB(ctx context.Context) (testcontainers.Container, *pgxpool.Pool, error) {
+
+	if err := os.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true"); err != nil {
+		return nil, nil, err
+	}
+
+	req := testcontainers.ContainerRequest{
+		Name:         "postgres-for-tests",
+		Image:        "postgres:17",
+		ExposedPorts: []string{"5432/tcp", "8025/tcp"},
+		Env: map[string]string{
+			"POSTGRES_PASSWORD": "1234",
+			"POSTGRES_USER":     "root",
+			"POSTGRES_DB":       "postgres",
+		},
+		WaitingFor: wait.ForListeningPort("5432/tcp").WithStartupTimeout(60 * time.Second),
+	}
+
+	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+		Reuse:            false,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	host, err := container.Host(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	port, err := container.MappedPort(ctx, "5432/tcp")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	u := fmt.Sprintf(
+		"postgres://root:1234@%s:%s/postgres?sslmode=disable&pool_max_conns=10&pool_min_conns=5",
+		host, port.Port(),
+	)
+
+	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
+		"root",
+		"1234",
+		host,
+		port.Port(),
+		"postgres",
+	)
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	conn, err := pgxpool.New(ctx, u)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	migration, err := migrate.New("file://"+filepath.Join(wd, "../storage/migrations-for-tests"), cfgForMigration)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = migration.Up()
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return nil, nil, err
+	}
+
+	return container, conn, nil
+}
+
+func downDB(ctx context.Context) {
+
+	if err := containerP.Terminate(ctx); err != nil {
+		panic(err)
+	}
+}
+
+func TestMain(m *testing.M) {
+	ctx := context.Background()
+	var err error
+	containerP, connP, err = upDB(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	code := m.Run()
+
+	downDB(ctx)
+
+	os.Exit(code)
+}
 
 func TestCreateFeedback(t *testing.T) {
 
 	ctx := context.Background()
 
-	conn, err := upDB()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
+	//conn, err := upDB()
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//defer conn.Close()
 
-	srv := service.New(zap.NewNop(), conn)
+	srv := service.New(zap.NewNop(), connP)
 
 	tests := []struct {
 		name    string
@@ -85,7 +193,7 @@ func TestCreateFeedback(t *testing.T) {
 			var got api.Call
 
 			_, err := srv.CreateFeedback(ctx, tt.req)
-			conn.QueryRow(ctx, q, tt.req.CallId).Scan(
+			connP.QueryRow(ctx, q, tt.req.CallId).Scan(
 				&got.CallId,
 				&got.UserId,
 				&got.LeaderId,
@@ -107,13 +215,13 @@ func TestCreateFeedback(t *testing.T) {
 
 func TestGetCall(t *testing.T) {
 	ctx := context.Background()
-	conn, err := upDB()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
+	//conn, err := upDB()
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//defer conn.Close()
 
-	srv := service.New(zap.NewNop(), conn)
+	srv := service.New(zap.NewNop(), connP)
 
 	tests := []struct {
 		name    string
@@ -166,13 +274,13 @@ func TestGetCall(t *testing.T) {
 
 func TestGetLeaderCalls(t *testing.T) {
 	ctx := context.Background()
-	conn, err := upDB()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
+	//conn, err := upDB()
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//defer conn.Close()
 
-	srv := service.New(zap.NewNop(), conn)
+	srv := service.New(zap.NewNop(), connP)
 
 	tests := []struct {
 		name    string
@@ -252,51 +360,52 @@ func TestGetLeaderCalls(t *testing.T) {
 	}
 }
 
-func upDB() (*pgxpool.Pool, error) {
-	ctx := context.Background()
-
-	cfg := postgres.Config{
-		Host:     "localhost",
-		Port:     "2345",
-		Username: "root",
-		Password: "1234",
-		Database: "postgres",
-		MaxConn:  10,
-		MinConn:  5,
-	}
-
-	cfgForPool := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
-		cfg.Username,
-		cfg.Password,
-		cfg.Host,
-		cfg.Port,
-		cfg.Database,
-		cfg.MaxConn,
-		cfg.MinConn,
-	)
-
-	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
-		cfg.Username,
-		cfg.Password,
-		cfg.Host,
-		cfg.Port,
-		cfg.Database,
-	)
-
-	conn, err := pgxpool.New(ctx, cfgForPool)
-	if err != nil {
-		return nil, fmt.Errorf("unable to connect to postgres: %w", err)
-	}
-
-	migration, err := migrate.New("file://../storage/migrations-for-tests", cfgForMigration)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create migrations: %w", err)
-	}
-
-	err = migration.Up()
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return nil, fmt.Errorf("unable to run migrations: %w", err)
-	}
-
-	return conn, nil
-}
+//
+//func upDBOld() (*pgxpool.Pool, error) {
+//	ctx := context.Background()
+//
+//	cfg := postgres.Config{
+//		Host:     "localhost",
+//		Port:     "2345",
+//		Username: "root",
+//		Password: "1234",
+//		Database: "postgres",
+//		MaxConn:  10,
+//		MinConn:  5,
+//	}
+//
+//	cfgForPool := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
+//		cfg.Username,
+//		cfg.Password,
+//		cfg.Host,
+//		cfg.Port,
+//		cfg.Database,
+//		cfg.MaxConn,
+//		cfg.MinConn,
+//	)
+//
+//	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
+//		cfg.Username,
+//		cfg.Password,
+//		cfg.Host,
+//		cfg.Port,
+//		cfg.Database,
+//	)
+//
+//	conn, err := pgxpool.New(ctx, cfgForPool)
+//	if err != nil {
+//		return nil, fmt.Errorf("unable to connect to postgres: %w", err)
+//	}
+//
+//	migration, err := migrate.New("file://../storage/migrations-for-tests", cfgForMigration)
+//	if err != nil {
+//		return nil, fmt.Errorf("unable to create migrations: %w", err)
+//	}
+//
+//	err = migration.Up()
+//	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+//		return nil, fmt.Errorf("unable to run migrations: %w", err)
+//	}
+//
+//	return conn, nil
+//}
