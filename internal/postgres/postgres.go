@@ -24,28 +24,23 @@ type Config struct {
 }
 
 func New(ctx context.Context, config Config) (*pgxpool.Pool, error) {
-	cfgForPool := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
+	//cfgForPool := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
+	//	config.Username,
+	//	config.Password,
+	//	config.Host,
+	//	config.Port,
+	//	config.Database,
+	//	config.MaxConn,
+	//	config.MinConn,
+	//)
+
+	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		config.Username,
 		config.Password,
 		config.Host,
 		config.Port,
 		config.Database,
-		config.MaxConn,
-		config.MinConn,
 	)
-
-	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool",
-		config.Username,
-		config.Password,
-		config.Host,
-		config.Port,
-		config.Database,
-	)
-
-	conn, err := pgxpool.New(ctx, cfgForPool)
-	if err != nil {
-		return nil, fmt.Errorf("unable to connect to postgres: %w", err)
-	}
 
 	migration, err := migrate.New("file://./storage/migrations", cfgForMigration)
 	if err != nil {
@@ -55,6 +50,16 @@ func New(ctx context.Context, config Config) (*pgxpool.Pool, error) {
 	err = migration.Up()
 	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return nil, fmt.Errorf("unable to run migrations: %w", err)
+	}
+
+	cfgForPool := fmt.Sprintf(cfgForMigration+"&pool_max_conns=%d&pool_min_conns=%d",
+		config.MaxConn,
+		config.MinConn,
+	)
+
+	conn, err := pgxpool.New(ctx, cfgForPool)
+	if err != nil {
+		return nil, fmt.Errorf("unable to connect to postgres: %w", err)
 	}
 
 	return conn, nil
