@@ -30,10 +30,6 @@ var (
 )
 
 func upDB(ctx context.Context) (testcontainers.Container, *pgxpool.Pool, error) {
-	if err := os.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true"); err != nil {
-		return nil, nil, err
-	}
-
 	req := testcontainers.ContainerRequest{
 		Name:         "postgres-for-tests",
 		Image:        "postgres:17",
@@ -98,12 +94,6 @@ func upDB(ctx context.Context) (testcontainers.Container, *pgxpool.Pool, error) 
 	return container, conn, nil
 }
 
-func downDB(ctx context.Context) {
-	if err := containerP.Terminate(ctx); err != nil {
-		panic(err)
-	}
-}
-
 func TestMain(m *testing.M) {
 	ctx := context.Background()
 	var err error
@@ -113,8 +103,6 @@ func TestMain(m *testing.M) {
 	}
 
 	code := m.Run()
-
-	downDB(ctx)
 
 	os.Exit(code)
 }
