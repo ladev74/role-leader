@@ -42,6 +42,8 @@ func New(ctx context.Context, config Config) (*pgxpool.Pool, error) {
 		config.Database,
 	)
 
+	//wd, _ := os.Getwd()
+
 	migration, err := migrate.New("file://./storage/migrations", cfgForMigration)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create migrations: %w", err)

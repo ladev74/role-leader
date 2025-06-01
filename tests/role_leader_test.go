@@ -21,23 +21,29 @@ import (
 	"go.uber.org/zap"
 
 	"role-leader/internal/api"
+	"role-leader/internal/postgres"
 	"role-leader/internal/service"
 )
 
 var (
-	containerP testcontainers.Container
-	connP      *pgxpool.Pool
+	connP *pgxpool.Pool
 )
 
-func upDB(ctx context.Context) (testcontainers.Container, *pgxpool.Pool, error) {
+func upDB(ctx context.Context) (*pgxpool.Pool, error) {
+	cfg := postgres.Config{
+		Username: "root",
+		Password: "1234",
+		Database: "postgres",
+	}
+
 	req := testcontainers.ContainerRequest{
 		Name:         "postgres-for-tests",
 		Image:        "postgres:17",
 		ExposedPorts: []string{"5432/tcp", "8025/tcp"},
 		Env: map[string]string{
-			"POSTGRES_PASSWORD": "1234",
-			"POSTGRES_USER":     "root",
-			"POSTGRES_DB":       "postgres",
+			"POSTGRES_PASSWORD": cfg.Password,
+			"POSTGRES_USER":     cfg.Username,
+			"POSTGRES_DB":       cfg.Database,
 		},
 		WaitingFor: wait.ForListeningPort("5432/tcp").WithStartupTimeout(60 * time.Second),
 	}
@@ -48,56 +54,55 @@ func upDB(ctx context.Context) (testcontainers.Container, *pgxpool.Pool, error) 
 		Reuse:            false,
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	host, err := container.Host(ctx)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	port, err := container.MappedPort(ctx, "5432/tcp")
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
+
+	cfg.Port, cfg.Host = port.Port(), host
 
 	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		"root",
-		"1234",
-		host,
-		port.Port(),
-		"postgres",
+		cfg.Username,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Database,
 	)
 
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, nil, err
-	}
+	wd, _ := os.Getwd()
 
 	migration, err := migrate.New("file://"+filepath.Join(wd, "../storage/migrations-for-tests"), cfgForMigration)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	err = migration.Up()
 	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return nil, nil, err
+		return nil, err
 	}
 
 	cfgForPool := cfgForMigration + "&pool_max_conns=10&pool_min_conns=5"
 
 	conn, err := pgxpool.New(ctx, cfgForPool)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	return container, conn, nil
+	return conn, nil
 }
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
 	var err error
-	containerP, connP, err = upDB(ctx)
+	connP, err = upDB(ctx)
 	if err != nil {
 		panic(err)
 	}
