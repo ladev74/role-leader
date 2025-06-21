@@ -24,16 +24,6 @@ type Config struct {
 }
 
 func New(ctx context.Context, config Config) (*pgxpool.Pool, error) {
-	//cfgForPool := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%d&pool_min_conns=%d",
-	//	config.Username,
-	//	config.Password,
-	//	config.Host,
-	//	config.Port,
-	//	config.Database,
-	//	config.MaxConn,
-	//	config.MinConn,
-	//)
-
 	cfgForMigration := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		config.Username,
 		config.Password,
@@ -41,8 +31,6 @@ func New(ctx context.Context, config Config) (*pgxpool.Pool, error) {
 		config.Port,
 		config.Database,
 	)
-
-	//wd, _ := os.Getwd()
 
 	migration, err := migrate.New("file://./storage/migrations", cfgForMigration)
 	if err != nil {

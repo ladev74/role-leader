@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"testing"
 	"time"
 
@@ -16,6 +15,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"go.uber.org/zap"
@@ -184,12 +184,8 @@ func TestCreateFeedback(t *testing.T) {
 				&got.StartTime,
 			)
 
-			if !errors.Is(err, tt.wantErr) {
-				t.Errorf("CreateFeedback() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if !reflect.DeepEqual(&got, tt.want) {
-				t.Errorf("CreateFeedback() got = %v, want %v", &got, tt.want)
-			}
+			assert.ErrorIs(t, err, tt.wantErr)
+			assert.Equal(t, &got, tt.want)
 		})
 	}
 }
@@ -237,12 +233,9 @@ func TestGetCall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := srv.GetCall(ctx, tt.req)
-			if !errors.Is(err, tt.wantErr) {
-				t.Errorf("GetCall() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetCall() got = %v, want %v", got, tt.want)
-			}
+
+			assert.ErrorIs(t, err, tt.wantErr)
+			assert.Equal(t, got, tt.want)
 		})
 	}
 
@@ -321,12 +314,9 @@ func TestGetLeaderCalls(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := srv.GetLeaderCalls(ctx, tt.req)
-			if !errors.Is(err, tt.wantErr) {
-				t.Errorf("GetLeaderCalls(), test name = %s: error = %v, wantErr %v", tt.name, err, tt.wantErr)
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetLeaderCalls() got = %v, want %v", got, tt.want)
-			}
+
+			assert.ErrorIs(t, err, tt.wantErr)
+			assert.Equal(t, got, tt.want)
 		})
 	}
 }
